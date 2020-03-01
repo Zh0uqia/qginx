@@ -1,0 +1,5 @@
+<?
+
+echo $_REQUEST["var"];
+
+?>
