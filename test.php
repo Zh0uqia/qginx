@@ -1,5 +1,11 @@
-<?
+<html>
+<body>
 
-echo $_REQUEST["var"];
+<h1>My first PHP page</h1>
 
+<?php
+var_dump($_REQUEST);
 ?>
+
+</body>
+</html>

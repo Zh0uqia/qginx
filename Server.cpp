@@ -60,21 +60,27 @@ void Server::handNewConn(){
         std::perror("accept");
         exit(EXIT_FAILURE);
     }
+
+
     valread = read( new_socket , buffer, 1024); 
     std::cout << "valread = "<< valread << std::endl; 
     send(new_socket , hello , strlen(hello) , 0 ); 
     std::cout << "Hello message sent" << std::endl;
-
+    printf("%s", buffer);    
+    
+    
     CommParser cp;
+    
     Request rq;
 
     std::string cmd(buffer);
+     
     rq = cp.parseCommand(cmd);
-    
     printf("request generated;");
-
+    
     Dispatcher dsp;
     dsp.dispatch(rq);
 
     printf("dispatcher generated");
+     
 }

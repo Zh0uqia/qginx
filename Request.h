@@ -4,19 +4,23 @@
 class Request
 {
 public:
-    Request();
-    ~Request();
-
-    std::string getType();
+    std::string getMethod();
     std::string getPath();
-    std::string getUrl();
-    void setType(std::string t);
+    std::string getHttpVersion();
+    std::string getQueryString();
+    void setMethod(std::string m);
     void setPath(std::string p);
-    void setUrl(std::string u);
+    void setHttpVersion(std::string v);
+    void setQueryString(std::string q);
 
 private:
-    std::string type;
+    std::string method;
     std::string file_path;
-    std::string url;
+    std::string http_version;
+    std::string query_string;
+
+    std::string http_headers;
+
+    std::string message_body;
 };
 

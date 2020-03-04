@@ -1,45 +1,89 @@
 #include <iostream>
 #include <CommParser.h>
 #include <cstring>
+#include <algorithm>
+#include <vector>
+
+std::vector<std::string> CommParser::split_string(std::string& str,
+                                      std::string& delimiter)
+{
+    std::vector<std::string> strings;
+
+    std::string::size_type pos = 0;
+    std::string::size_type prev = 0;
+    while ((pos = str.find(delimiter, prev)) != std::string::npos)
+    {
+        strings.push_back(str.substr(prev, pos - prev));
+        prev = pos + 1;
+    }
+
+    // To get the last substring (or only, if delimiter is not found)
+    strings.push_back(str.substr(prev));
+
+    return strings;
+}
+
+void CommParser::print_string(std::vector<std::string>& string_vector){
+    for (auto i=string_vector.begin(); i!=string_vector.end(); ++i){
+        std::cout << *i <<std::endl;
+    }
+}
 
 Request CommParser::parseCommand(std::string cmd){
-    // char* token = std::strtok(cmd, " ");
-    std::istringstream buf(cmd);
-    std::istream_iterator<std::string> beg(buf), end;
-    std::vector<std::string> tokens(beg, end);
+    std::string delim = "\r\n";
+    std::vector<std::string> parsed = split_string(cmd, delim);
 
-    std::string parsed[CommParser::MAXCMDLENGTH];
-    int i;
-    Request r;
+    print_string(parsed);
 
-    i=0;
-    for (auto& s: tokens){
-        parsed[i] = s;
-        i++;
-    }
+    std::vector<std::string>::iterator it, nx, p;
+
+    std::vector<std::string> header, message;
     
-    for (i=0; i<CommParser::MAXCMDLENGTH; i++){
-            std::string seg = parsed[i];
+    std::string status_line = parsed[0];
+    // std::cout << status_line << std::endl;
 
-            if (CommParser::isCmd(seg))
-                r.setType(seg);
-            if (CommParser::isPath(seg))
-                r.setPath(seg);
-            if (CommParser::isUrl(seg))
-                r.setUrl(seg);
+    int n = parsed.size();
+
+    int chunk = 1;
+
+    it = parsed.begin();
+    nx = std::next(it, 1); // skip the status line 
+
+    /*
+    while (find(nx, parsed.end(), "\r\n") != parsed.end()){
+        p = find(nx, parsed.end(), "\r\n");
+        int index = std::distance(it, p);
+        std::cout << index << std::endl;
+
+        if (chunk==1){
+            std::vector<std::string> hd(nx, p);
+            header = hd;
+            chunk++;
+            nx=p;
+            printf("chunk2");
+        }
+        else if (chunk==2){
+            std::vector<std::string> ms(nx, p);
+            message = ms;
+            chunk++;
+            nx=p;
+            printf("chunk3");
+        }
     }
+    //std::cout << status_line << std::endl;
+    //std::cout << header << std::endl;
+    //std::cout << message << std::endl;
+
+    */
+    Request r;
+    
+    std::string sl_delim = " ";
+    std::vector<std::string> parsed_status = split_string(status_line, sl_delim);
+    print_string(parsed_status);
+    
+    r.setMethod(parsed_status[0]);
+    r.setPath(parsed_status[1]);
+    r.setHttpVersion(parsed_status[2]);
     
     return r;
-}
-
-bool CommParser::isCmd(std::string s){
-    return true;
-}
-
-bool CommParser::isPath(std::string s){
-    return true;
-}
-
-bool CommParser::isUrl(std::string s){
-    return true;
 }

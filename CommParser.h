@@ -10,13 +10,8 @@
 class CommParser
 {
 public:
-    CommParser();
-    ~CommParser();
     Request parseCommand(std::string cmd);
-    bool isCmd(std::string s);
-    bool isPath(std::string s);
-    bool isUrl(std::string s);
-private:
-    static const int MAXCMDLENGTH = 20;
+private: 
+    std::vector<std::string> split_string(std::string&, std::string&);
+    void print_string(std::vector<std::string>&);
 };
-

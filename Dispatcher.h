@@ -6,9 +6,6 @@
 class Dispatcher
 {
 public:
-    Dispatcher();
-    ~Dispatcher();
-    
     void dispatch(Request r);
 private:
 

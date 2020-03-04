@@ -1,21 +1,13 @@
 #include <iostream>
 #include <Dispatcher.h>
 
-void dispatch(Request r){
+void Dispatcher::dispatch(Request r){
     Controller ctl;
 
-    std::string cmd = r.getType();
+    std::string cmd = r.getMethod();
     
-    switch (cmd){
-    case 'GET':{
-                    ctl.cmd_get(r);
-                    break;
-               }
-    case 'POST':{
-                    ctl.cmd_post(r);
-                    break;
-                }
-    default:
-                break;
-}
+    if (cmd == "GET"){
+        ctl.cmd_get(r);
+    }
+
 }

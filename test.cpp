@@ -1,11 +1,16 @@
 #include <iostream>
+#include <fstream>
+#include <vector>
+#include <sstream>
+#include <iterator>
+ 
+using namespace std;
 
-int main()
-{
-    char buffer[] = "buffertostring";
+int main(){
+    std::ifstream ifs("index.html");
+    std::string content( (std::istreambuf_iterator<char>(ifs) ),
+                       (std::istreambuf_iterator<char>()    ) );
 
-    std::string s(buffer);
-    std::cout << s  << std::endl;
-    return 0;
+    cout << content << endl;
+
 }
-
