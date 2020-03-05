@@ -16,6 +16,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <errno.h>
+#include <stdlib.h>
 
 static const int PARAMS_BUFF_LEN = 2048;  //环境参数buffer的大小
 static const int CONTENT_BUFF_LEN = 2048; //内容buffer的大小
@@ -282,9 +283,14 @@ char *readFromPhp(FastCgi_t *c)
             ret = read(c->sockfd_, &endRequest, sizeof(endRequest));
             assert(ret == sizeof(endRequest));
         }
+
     }
+
+    char* res = (char*)malloc(10000 * sizeof(char));
+    strcpy(res, content);
+
     printf("content= %s", content);
-    return content;
+    return res;
 }
 
 char *findStartHtml(char *p)

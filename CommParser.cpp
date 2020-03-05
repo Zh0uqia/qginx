@@ -29,11 +29,19 @@ void CommParser::print_string(std::vector<std::string>& string_vector){
     }
 }
 
+bool CommParser::hasQueryString(std::string s){
+    if (s.find("?")!=std::string::npos)
+        return true;
+    else
+        return false;
+
+}
+
 Request CommParser::parseCommand(std::string cmd){
     std::string delim = "\r\n";
     std::vector<std::string> parsed = split_string(cmd, delim);
 
-    print_string(parsed);
+    // print_string(parsed);
 
     std::vector<std::string>::iterator it, nx, p;
 
@@ -43,7 +51,6 @@ Request CommParser::parseCommand(std::string cmd){
     // std::cout << status_line << std::endl;
 
     int n = parsed.size();
-
     int chunk = 1;
 
     it = parsed.begin();
@@ -79,11 +86,25 @@ Request CommParser::parseCommand(std::string cmd){
     
     std::string sl_delim = " ";
     std::vector<std::string> parsed_status = split_string(status_line, sl_delim);
-    print_string(parsed_status);
-    
+    // print_string(parsed_status);
+
+    if (!hasQueryString(parsed_status[1])){
+        r.setPath(parsed_status[1]);
+    }
+    else{
+        int pos = parsed_status[1].find("?");
+        std::string query = parsed_status[1].substr(pos+1);
+        r.setQueryString(query);
+        r.setPath(parsed_status[1].substr(0, pos));
+    }
+
     r.setMethod(parsed_status[0]);
-    r.setPath(parsed_status[1]);
     r.setHttpVersion(parsed_status[2]);
+    
+    // post request 
+    if (r.getMethod() == "POST" && n==8){
+        r.setContent(parsed[7]);
+    }
     
     return r;
 }

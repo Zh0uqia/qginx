@@ -14,4 +14,5 @@ public:
 private: 
     std::vector<std::string> split_string(std::string&, std::string&);
     void print_string(std::vector<std::string>&);
+    bool hasQueryString(std::string);
 };

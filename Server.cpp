@@ -76,11 +76,11 @@ void Server::handNewConn(){
     std::string cmd(buffer);
      
     rq = cp.parseCommand(cmd);
-    printf("request generated;");
     
     Dispatcher dsp;
-    dsp.dispatch(rq);
+    char* response;
+    response = dsp.dispatch(rq);
 
-    printf("dispatcher generated");
+    send(new_socket, response, strlen(response), 0);
      
 }

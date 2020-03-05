@@ -4,7 +4,12 @@
 <h1>My first PHP page</h1>
 
 <?php
-var_dump($_REQUEST);
+switch($_SERVER['REQUEST_METHOD'])
+{
+case 'GET': var_dump($_GET); break;
+case 'POST': var_dump($_POST); break;
+default: break;
+}
 ?>
 
 </body>

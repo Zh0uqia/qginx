@@ -6,7 +6,7 @@
 class Dispatcher
 {
 public:
-    void dispatch(Request r);
+    char* dispatch(Request r);
 private:
 
 };
