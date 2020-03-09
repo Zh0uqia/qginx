@@ -3,9 +3,11 @@
 #include <bits/stdc++.h>
 
 char* Response::generateResponse(char* content){
-    std::string res = status_line + "\r\n" + server + "\r\n" +\
+    // std::string res = status_line + "\r\n" + date + server + "\r\n" +\
           length + std::to_string(sizeof(content)) + "\r\n" +\
-          type + "\r\n" + charset + "\r\n" + content + "\r\n";
+          type + "\r\n" + charset + "\r\n" + content;
+
+    std::string res = "HTTP/1.0 200 OK\r\nContent-Length: 11\r\nContent-Type: text/html; charset=UTF-8\r\n\r\nHello World\r\n";
     std::cout << res << std::endl;
     char* response = (char*) malloc(10000 * sizeof(char));
     strcpy(response, res.c_str());

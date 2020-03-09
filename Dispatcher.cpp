@@ -1,17 +1,19 @@
 #include <iostream>
 #include <Dispatcher.h>
 
-char* Dispatcher::dispatch(Request r){
+char* Dispatcher::dispatch(RequestHandler rhandl){
     Controller ctl;
 
-    std::string cmd = r.getMethod();
+    std::string cmd = rhandl.getMethod();
     
-    if (cmd == "GET"){
-        return ctl.cmd_get(r);
+    if (cmd == STATE_GET_STATIC || cmd == STATE_GET_DYNAMIC){
+        return ctl.cmdGet(rhandl);
     }
 
-    else if (cmd == "POST"){
-        return ctl.cmd_post(r);
+    else if (cmd == STATE_METHOD_POST){
+        return ctl.cmdPost(rhandl);
+    }else{
+        return ctl.cmdOther(rhandl);
     }
 
 }

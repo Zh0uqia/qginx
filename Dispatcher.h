@@ -1,12 +1,12 @@
 #pragma once
 #include <Controller.h>
 #include <conf.h>
-#include <Request.h>
+#include <RequestHandler.h>
 
 class Dispatcher
 {
 public:
-    char* dispatch(Request r);
+    char* dispatch(RequestHandler rhandl);
 private:
 
 };

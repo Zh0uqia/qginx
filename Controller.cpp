@@ -2,7 +2,7 @@
 #include <Controller.h>
 #include <boost/algorithm/string.hpp>
 
-char* Controller::cmd_get(Request r){
+char* Controller::cmdGet(Request r){
     char* res;
 
     std::string fn = r.getPath();
@@ -38,7 +38,7 @@ char* Controller::cmd_get(Request r){
     return res;
 }
 
-char* Controller::cmd_post(Request r){
+char* Controller::cmdPost(Request r){
     char* res;
 
     std::string fn = r.getPath();

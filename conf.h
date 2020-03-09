@@ -6,4 +6,6 @@
 #include <arpa/inet.h>       // For inet_addr()
 #include <unistd.h>          // For close()
 #include <netinet/in.h>      // For sockaddr_in
-#include <errno.h>             // For errno 
+#include <errno.h>           // For errno 
+
+#define BUFFERLENGTH 20000

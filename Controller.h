@@ -1,15 +1,15 @@
 #pragma once
 #include <conf.h>
-#include <Request.h>
 #include <./fastcgi/fcgi.h>
 #include <bits/stdc++.h>
 #include <Response.h>
+#include <RequestHandler.h>
 
 class Controller
 {
 public:
-    char* cmd_get(Request);
-    char* cmd_post(Request);
+    char* cmdGet(RequestHandler);
+    char* cmdPost(RequestHandler);
     bool isPhp(std::string);
     bool isGetDynamic(Request);
 

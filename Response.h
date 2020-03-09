@@ -9,6 +9,7 @@ public:
 
 private:
     std::string status_line = "HTTP/1.0 200 OK";
+    std::string date = "Date: Thu, 19 Feb 2009 12:27:04 GMT\r\n";
     std::string server = "SERVER: QYSERVER";
     std::string length = "Content-Length: ";
     std::string type = "Content-Type: text/html";

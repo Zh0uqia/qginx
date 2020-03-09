@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <vector>
 
+
 std::vector<std::string> CommParser::split_string(std::string& str,
                                       std::string& delimiter)
 {
@@ -85,6 +86,12 @@ Request CommParser::parseCommand(std::string cmd){
     Request r;
     
     std::string sl_delim = " ";
+
+    // if status line is empty 
+    if (status_line == "" || status_line.empty()){
+        return r;
+    }
+
     std::vector<std::string> parsed_status = split_string(status_line, sl_delim);
     // print_string(parsed_status);
 

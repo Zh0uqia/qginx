@@ -14,8 +14,8 @@
 #include <iostream>
 
 #include <Server.h>
-#include <CommParser.h>
-#include <Dispatcher.h>
+#include <RequestHandler.h>
+// #include <Dispatcher.h>
 
 class Server
 {
@@ -28,13 +28,9 @@ private:
     int port_;
     bool started_;
 
-    int server_fd, new_socket, valread;
-    struct sockaddr_in address;
-    int opt = 1;
-    int addrlen = sizeof(address);
-    
-    char buffer[1024] = {0};
-    const char *hello = "Hello from server";
+    char readBuffer_[BUFFERLENGTH];
+    int serverFD_, newSocket_;
+    struct sockaddr_in address_;
 
 };
 
