@@ -1,8 +1,14 @@
 CXX = g++
 CXXFLAGS = -Wall -g
-INCLUDES = -I./ -I./fastcgi
-SRCS = Main.cpp Server.cpp RequestHandler.cpp
-# Dispatcher.cpp Controller.cpp Response.cpp RequestHandler.cpp
+INCLUDES = -I./ -I./fastcgi 
+SRCS = Main.cpp Server.cpp RequestHandler.cpp 
+
+DEBUG ?= 1
+
+ifeq ($(DEBUG), 1)
+	CXXFLAGS += -DDEBUG
+endif
+
 OBJS = $(SRCS:.c=.o)
 
 MAIN = webserver
@@ -16,7 +22,7 @@ $(MAIN): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	rm *.o $(MAIN)
+	rm $(MAIN)
 
 depend: $(SRCS)
 	makedepend $(INCLUDES) $^

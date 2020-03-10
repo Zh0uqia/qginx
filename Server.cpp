@@ -69,24 +69,20 @@ void Server::handNewConn(){
         std::cout << "Hello message sent" << std::endl;
         std::cout << readBuffer_ << std::endl;    
         
-        // send request message to requestHandler 
-        RequestHandler requestHandler;
+#ifdef DEBUG
         std::string cmd(readBuffer_);
         
-        std::regex b("(.*)(\r\n)");
+        std::regex b("[\r][\n][\r][\n]");
 
-        if (std::regex_match(cmd, b))
+        if (std::regex_search(cmd, b))
             std::cout << "matched" << std::endl;
         else
             std::cout << "not matched" << std::endl;
-
+        
+#endif 
+        RequestHandler requestHandler;
         requestHandler.processRequest(cmd);
-        
-        ProcessState ps = requestHandler.getState();
-        
-        if (ps == STATE_PRS_FINISH){
-            printf("------process finish-------\n");
-        }
+                
         /*
         if (ps == STATE_PRS_FINISH){
             Dispatcher dsp;
@@ -98,7 +94,7 @@ void Server::handNewConn(){
             char* error = "Error from Server";
             send(newSocket_, error, strlen(error), 0);
         }
-        */
+        */ 
 
         /*
 

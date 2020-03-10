@@ -10,8 +10,7 @@ using namespace std;
 
 int main(){
     // string test = "ab\r\ncd\r\nef\r\n";
-    string test = "abc\r\n\r\n";
-
+    string test = "aaaaaa\r\n\r\n";
     /*
     size_t pos=0;
     size_t prev=0;
@@ -23,10 +22,9 @@ int main(){
         prev = pos+1;
     }
     */
-
-    regex b("(.*)(\r\n\r\n)");
-
-    if (regex_match(test, b))
+    cout << test << endl;
+    regex b("[\r\n]{2}");
+    if (regex_search(test, b))
         cout << "matched" << endl;
     else
         cout << "not matched" << endl;
