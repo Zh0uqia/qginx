@@ -15,7 +15,7 @@
 
 #include <Server.h>
 #include <RequestHandler.h>
-// #include <Dispatcher.h>
+#include <Dispatcher.h>
 
 class Server
 {

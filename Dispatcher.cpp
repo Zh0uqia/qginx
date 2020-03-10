@@ -4,16 +4,14 @@
 char* Dispatcher::dispatch(RequestHandler rhandl){
     Controller ctl;
 
-    std::string cmd = rhandl.getMethod();
-    
-    if (cmd == STATE_GET_STATIC || cmd == STATE_GET_DYNAMIC){
+    MethodState cmd = rhandl.getMethod();
+
+    if (cmd == METHOD_GET_STATIC || cmd == METHOD_GET_DYNAMIC || cmd == METHOD_OTHER){
         return ctl.cmdGet(rhandl);
     }
 
-    else if (cmd == STATE_METHOD_POST){
+    else if (cmd == METHOD_POST){
         return ctl.cmdPost(rhandl);
-    }else{
-        return ctl.cmdOther(rhandl);
-    }
-
+    }else
+        return "error happened in dispatcher";
 }

@@ -11,7 +11,7 @@ public:
     char* cmdGet(RequestHandler);
     char* cmdPost(RequestHandler);
     bool isPhp(std::string);
-    bool isGetDynamic(Request);
+    bool isGetDynamic(RequestHandler);
 
 private:
  

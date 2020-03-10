@@ -2,10 +2,11 @@
 #include <Controller.h>
 #include <boost/algorithm/string.hpp>
 
-char* Controller::cmdGet(Request r){
+char* Controller::cmdGet(RequestHandler r){
     char* res;
 
-    std::string fn = r.getPath();
+    std::string fn = r.getUri();// relative path 
+    fn = "/mnt/raid/webserver/" + fn; // absolute path 
     char *file_name = &fn[0];
     // int n = fn.length();
     // char file_name[n+1];
@@ -14,8 +15,9 @@ char* Controller::cmdGet(Request r){
 
     /* interact with php */
     if (isPhp(fn)){
+#ifdef DEBUG 
         printf("----is php----\n");
-        
+#endif 
         if (isGetDynamic(r)){
             std::string qs = r.getQueryString();
             char *query_string = &qs[0];
@@ -38,17 +40,18 @@ char* Controller::cmdGet(Request r){
     return res;
 }
 
-char* Controller::cmdPost(Request r){
+char* Controller::cmdPost(RequestHandler r){
     char* res;
 
-    std::string fn = r.getPath();
+    std::string fn = r.getUri();
+    fn = "/mnt/raid/webserver/" + fn;
     char *file_name = &fn[0];
     // int n = fn.length();
     // char file_name[n+1];
 
     // strcpy(file_name, fn.c_str());
 
-    std::string ct = r.getContent();
+    std::string ct = r.getBody();
     char *content = &ct[0];
     // int n2 = ct.length();
     // char content[n2+1];
@@ -73,7 +76,7 @@ bool Controller::isPhp(std::string p){
     return res;
 }
 
-bool Controller::isGetDynamic(Request r){
+bool Controller::isGetDynamic(RequestHandler r){
     if (!r.getQueryString().empty())
         return true;
     else

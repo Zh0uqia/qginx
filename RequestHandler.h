@@ -45,6 +45,11 @@ public:
     RequestHandler();
     
     ProcessState getState();
+    MethodState getMethod();
+    HttpVersionState getVersion();
+    std::string getUri();
+    std::string getQueryString();
+    std::string getBody();
 
     void processRequest(std::string);
 

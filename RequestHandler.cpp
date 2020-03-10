@@ -9,8 +9,28 @@ RequestHandler::RequestHandler()
     nowReadPos_(0)
 {}
 
-RequestHandler::getState(){
+ProcessState RequestHandler::getState(){
     return RequestHandler::state_;
+}
+
+MethodState RequestHandler::getMethod(){
+    return RequestHandler::method_;
+}
+
+HttpVersionState RequestHandler::getVersion(){
+    return RequestHandler::httpVersion_;
+}
+
+std::string RequestHandler::getUri(){
+    return RequestHandler::uri_;
+}
+
+std::string RequestHandler::getQueryString(){
+    return RequestHandler::queryString_;
+}
+
+std::string RequestHandler::getBody(){
+    return RequestHandler::body_;
 }
 
 StatusState RequestHandler::processStatus(std::string cmd){
@@ -64,7 +84,7 @@ StatusState RequestHandler::processStatus(std::string cmd){
             if ((tmp = statusLine.find("?", pos)) != std::string::npos){
                 method_ = METHOD_GET_DYNAMIC;
                 uri_ = statusLine.substr(pos, tmp-pos);
-                queryString_ = statusLine.substr(tmp, nxt-tmp);
+                queryString_ = statusLine.substr(tmp+1, nxt-tmp);
             }
 
             if (uri_ == "/"){
@@ -133,10 +153,8 @@ BodyState RequestHandler::processBody(std::string cmd){
 #ifdef DEBUG 
         std::cout << "body is \n" << cmd.substr(nowReadPos_) << std::endl;
 #endif 
-        return BODY_FINISH;
-    }else{
-        return BODY_ERROR;
     }
+    return BODY_FINISH;
 }
 
 void RequestHandler::processRequest(std::string cmd){
@@ -170,7 +188,7 @@ void RequestHandler::processRequest(std::string cmd){
 
 
 #ifdef DEBUG
-    std::cout << "state after statusline is: " << state_ << std::endl;
+    std::cout << "state after header is: " << state_ << std::endl;
 #endif
 
     if (state_ == STATE_BODY){
@@ -184,7 +202,7 @@ void RequestHandler::processRequest(std::string cmd){
     
 
 #ifdef DEBUG
-    std::cout << "state after statusline is: " << state_ << std::endl;
+    std::cout << "state after body is: " << state_ << std::endl;
 #endif
 
     return;

@@ -82,27 +82,21 @@ void Server::handNewConn(){
 #endif 
         RequestHandler requestHandler;
         requestHandler.processRequest(cmd);
-                
-        /*
-        if (ps == STATE_PRS_FINISH){
+    
+        ProcessState ps = requestHandler.getState();
+        
+        if (ps == STATE_FINISH){
+            printf("-----------STATE FINISH------------\n");
             Dispatcher dsp;
             char* response;
             response = dsp.dispatch(requestHandler);
 
             send(newSocket_, response, strlen(response), 0);
         }else{
+            printf("-----------STATE ERROR ------------\n");
             char* error = "Error from Server";
             send(newSocket_, error, strlen(error), 0);
         }
-        */ 
-
-        /*
-
-        Dispatcher dsp;
-        char* response;
-        response = dsp.dispatch(rq);
-
-        send(new_socket, response, strlen(response), 0);
-        */
+         
     }
 }
