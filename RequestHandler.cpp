@@ -72,7 +72,7 @@ StatusState RequestHandler::processStatus(std::string cmd){
     pos = statusLine.find("/", pos);
 
     if (pos == std::string::npos){
-        uri_ = "test.php"; // "index.html"
+        uri_ = "index.html"; // "index.html"
         return STATUS_FINISH;
     }else{
         nxt = statusLine.find(" ", pos);
@@ -88,7 +88,7 @@ StatusState RequestHandler::processStatus(std::string cmd){
             }
 
             if (uri_ == "/"){
-                uri_ = "test.php"; // "index.html"
+                uri_ = "index.html"; // "index.html"
             }
         }
     }

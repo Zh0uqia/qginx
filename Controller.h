@@ -2,8 +2,13 @@
 #include <conf.h>
 #include <./fastcgi/fcgi.h>
 #include <bits/stdc++.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #include <Response.h>
 #include <RequestHandler.h>
+#include <iostream>
+#include <sys/types.h>
+#include <fcntl.h>
 
 class Controller
 {
@@ -14,7 +19,8 @@ public:
     bool isGetDynamic(RequestHandler);
 
 private:
- 
+    char* openFile(std::string);
+
     void FastCgiFun(char *method, char *file_path, char *query_string, char *content)
 	{
 		FastCgi_init(c);

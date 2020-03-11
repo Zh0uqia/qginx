@@ -7,5 +7,6 @@
 #include <unistd.h>          // For close()
 #include <netinet/in.h>      // For sockaddr_in
 #include <errno.h>           // For errno 
+#include <string>
 
 #define BUFFERLENGTH 20000

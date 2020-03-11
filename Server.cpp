@@ -60,18 +60,14 @@ void Server::handNewConn(){
             exit(EXIT_FAILURE);
         }
 
-        char* hello = "Hello from server";
         memset(readBuffer_, 0, sizeof(readBuffer_));
 
         int valread = read( newSocket_ , readBuffer_, 1024); 
         std::cout << "valread = "<< valread << std::endl; 
-        send(newSocket_ , hello , strlen(hello) , 0 ); 
-        std::cout << "Hello message sent" << std::endl;
-        std::cout << readBuffer_ << std::endl;    
+        std::cout << readBuffer_ << std::endl;
         
-#ifdef DEBUG
         std::string cmd(readBuffer_);
-        
+#ifdef DEBUG        
         std::regex b("[\r][\n][\r][\n]");
 
         if (std::regex_search(cmd, b))
@@ -91,11 +87,21 @@ void Server::handNewConn(){
             char* response;
             response = dsp.dispatch(requestHandler);
 
-            send(newSocket_, response, strlen(response), 0);
+            char send_buff[10000];
+            std::string header_buff;
+            header_buff = "HTTP/1.1 " + std::to_string(220) + " OK" + "\r\n";
+            header_buff += "Content-Type: text/html\r\n";
+            header_buff += "Connection: Close\r\n";
+            header_buff += "Content-Length: " + std::to_string(strlen(response)) + "\r\n";
+            header_buff += "Server: Qianying Zhou's Web Server\r\n";
+            header_buff += "\r\n";
+            
+            sprintf(send_buff, "%s", header_buff.c_str());
+            write(newSocket_, send_buff, strlen(send_buff));
+
+            write(newSocket_, response, strlen(response));
         }else{
             printf("-----------STATE ERROR ------------\n");
-            char* error = "Error from Server";
-            send(newSocket_, error, strlen(error), 0);
         }
          
     }
