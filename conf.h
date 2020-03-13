@@ -1,12 +1,14 @@
 #pragma once
 
 #include <sys/types.h>       // For data types
-#include <sys/socket.h>      // For socket(), connect(), send(), and recv()
-#include <netdb.h>           // For gethostbyname()
-#include <arpa/inet.h>       // For inet_addr()
-#include <unistd.h>          // For close()
-#include <netinet/in.h>      // For sockaddr_in
 #include <errno.h>           // For errno 
 #include <string>
+
+#ifdef DEBUG
+#define dbPrint(x) std::cout << x;
+#else
+#define dbPrint(x);
+#endif
+ 
 
 #define BUFFERLENGTH 20000

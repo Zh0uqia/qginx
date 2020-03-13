@@ -11,9 +11,6 @@ char* Controller::cmdGet(RequestHandler r){
     
     /* interact with php */
     if (isPhp(fn)){
-#ifdef DEBUG 
-        printf("----is php----\n");
-#endif 
         if (isGetDynamic(r)){
             std::string qs = r.getQueryString();
             char *query_string = &qs[0];
@@ -46,10 +43,8 @@ char* Controller::cmdPost(RequestHandler r){
     
     /* interact with php */
     if (isPhp(fn)){
-        printf("----is php----\n");
         FastCgiFun(const_cast<char *>("POST"), const_cast<char *>(file_name), NULL, content);
         res = responseFun();
-
     } 
     else{
         res = openFile(fn);
@@ -66,7 +61,7 @@ char* Controller::openFile(std::string fn){
 
     int src_fd = open(fn.c_str(), O_RDONLY, 0);
     if (src_fd < 0) {
-        std::cout << "404: failure of opening file" << std::endl;
+        dbPrint("404: failure of opening file" << std::endl);
         res = "failure";
         return res;
     }
@@ -74,7 +69,7 @@ char* Controller::openFile(std::string fn){
     close(src_fd);
     if (mmapRet == (void *)-1) {
         munmap(mmapRet, sbuf.st_size);
-        std::cout << "404: failure of opening file" << std::endl;
+        dbPrint("404: failure of opening file" << std::endl);
         res = "failure";
         return res;
     }

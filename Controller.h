@@ -6,9 +6,8 @@
 #include <sys/stat.h>
 #include <Response.h>
 #include <RequestHandler.h>
-#include <iostream>
-#include <sys/types.h>
 #include <fcntl.h>
+#include <sys/socket.h>
 
 class Controller
 {
@@ -27,7 +26,6 @@ private:
 		setRequestId(c, 1);
 		startConnect(c);
 		sendStartRequestRecord(c); //start request body is the first request body sent  
-		std::cout << "----------------------------------------php started" << std::endl;
         
         // send "name-value" pairs 
         if (method == "GET"){
@@ -91,8 +89,6 @@ private:
 			final_html[i] = *(html + i);
 		}
 		final_html[i] = '\0';
-
-		// std::cout << "final_html%%%%%%%%%%%%%%%%%%%%%%%%\% " << final_html << std::endl;
 
         char* response;
         response = resp.generateResponse(final_html);

@@ -108,13 +108,11 @@ StatusState RequestHandler::processStatus(std::string cmd){
         httpVersion_ = HTTP_10;
     }
 
-#ifdef DEBUG
-    std::cout << "uri is \n" << uri_ << std::endl;
-    std::cout << "query string is \n" << queryString_ << std::endl;
-    std::cout << "method is \n" << method_ << std::endl;
-    std::cout << "status line is \n" << statusLine << std::endl;
-    std::cout << "remaining is \n" << cmd << std::endl;
-#endif 
+    dbPrint("uri is \n" << uri_ << std::endl);
+    dbPrint("query string is \n" << queryString_ << std::endl);
+    dbPrint("method is \n" << method_ << std::endl);
+    dbPrint("status line is \n" << statusLine << std::endl);
+
     return STATUS_FINISH;
 }
 
@@ -127,32 +125,23 @@ HeaderState RequestHandler::processHeader(std::string cmd){
     std::regex b("[\r][\n][\r][\n]");
 
     if (std::regex_search(cmd, m, b)){
-        std::cout << "empty line found" << std::endl;
+        dbPrint("empty line found" << std::endl);
     }else{
         return HEADER_ERROR;
     }
 
-#ifdef DEBUG
-    for (unsigned i=0; i<m.size(); ++i){
-        std::cout << "match:" << m.position(i) << std::endl;
-    }
-#endif
-
     nowReadPos_ = m.position(m.size()-1) + 4;
 
-#ifdef DEBUG
-    std::cout << "Header is \n" << header << std::endl;
-#endif
-    
+    dbPrint("Header is \n" << header << std::endl);
+
     return HEADER_FINISH;
 }
 
 BodyState RequestHandler::processBody(std::string cmd){
     if (nowReadPos_ < cmd.length()){
         body_ = cmd.substr(nowReadPos_);
-#ifdef DEBUG 
-        std::cout << "body is \n" << cmd.substr(nowReadPos_) << std::endl;
-#endif 
+
+        dbPrint("body is \n" << cmd.substr(nowReadPos_) << std::endl); 
     }
     return BODY_FINISH;
 }
@@ -173,9 +162,8 @@ void RequestHandler::processRequest(std::string cmd){
             state_ = STATE_HEADER;
     }
 
-#ifdef DEBUG
-    std::cout << "state after statusline is: " << state_ << std::endl;
-#endif
+    dbPrint("state after statusline is: " << state_ << std::endl);
+
 
     if (state_ == STATE_HEADER){
         HeaderState flag = processHeader(cmd);
@@ -186,10 +174,7 @@ void RequestHandler::processRequest(std::string cmd){
             state_ = STATE_BODY;
     }
 
-
-#ifdef DEBUG
-    std::cout << "state after header is: " << state_ << std::endl;
-#endif
+    dbPrint("state after header is: " << state_ << std::endl);
 
     if (state_ == STATE_BODY){
         BodyState flag = processBody(cmd);
@@ -200,10 +185,7 @@ void RequestHandler::processRequest(std::string cmd){
             state_ = STATE_FINISH;
     }
     
-
-#ifdef DEBUG
-    std::cout << "state after body is: " << state_ << std::endl;
-#endif
+    dbPrint("state after body is: " << state_ << std::endl);
 
     return;
 }

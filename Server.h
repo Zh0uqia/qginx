@@ -1,20 +1,19 @@
 #pragma once
 #include <conf.h>
-#include <arpa/inet.h>
 #include <fcntl.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/epoll.h>
-#include <sys/socket.h>
 #include <sys/types.h>
 #include <time.h>
-#include <unistd.h>
 #include <iostream>
-#include <unistd.h>
+#include <sys/socket.h>      // For socket(), connect(), send(), and recv()
+#include <netdb.h>           // For gethostbyname()
+#include <arpa/inet.h>       // For inet_addr()
+#include <unistd.h>          // For close()
+#include <netinet/in.h>      // For sockaddr_in
 
-#include <Server.h>
 #include <RequestHandler.h>
 #include <Dispatcher.h>
 
