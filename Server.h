@@ -12,6 +12,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <iostream>
+#include <unistd.h>
 
 #include <Server.h>
 #include <RequestHandler.h>
@@ -21,7 +22,6 @@ class Server
 {
 public:
     void start(int p);
-    void close();
     void handNewConn();
 
 private:

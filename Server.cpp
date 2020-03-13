@@ -8,10 +8,6 @@ void Server::start(int p){
     port_ = p; 
 }
 
-void Server::close(){
-    started_ = false;
-}
-
 void Server::handNewConn(){
     // Creating socket file descriptor
     int opt = 1;
@@ -103,6 +99,6 @@ void Server::handNewConn(){
         }else{
             printf("-----------STATE ERROR ------------\n");
         }
-         
+        close(newSocket_);         
     }
 }

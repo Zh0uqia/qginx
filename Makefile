@@ -6,7 +6,7 @@ SRCS = Main.cpp Server.cpp RequestHandler.cpp Dispatcher.cpp Controller.cpp Resp
 DEBUG ?= 1
 
 ifeq ($(DEBUG), 1)
-	CXXFLAGS += -DDEBUG
+	CXXFLAGS += -DDEBUG -fsanitize=address -fno-omit-frame-pointer
 endif
 
 OBJS = $(SRCS:.c=.o)

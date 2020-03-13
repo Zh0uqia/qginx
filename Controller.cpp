@@ -67,12 +67,16 @@ char* Controller::openFile(std::string fn){
     int src_fd = open(fn.c_str(), O_RDONLY, 0);
     if (src_fd < 0) {
         std::cout << "404: failure of opening file" << std::endl;
+        res = "failure";
+        return res;
     }
     void *mmapRet = mmap(NULL, sbuf.st_size, PROT_READ, MAP_PRIVATE, src_fd, 0);
     close(src_fd);
     if (mmapRet == (void *)-1) {
         munmap(mmapRet, sbuf.st_size);
         std::cout << "404: failure of opening file" << std::endl;
+        res = "failure";
+        return res;
     }
     char *src_addr = static_cast<char *>(mmapRet);
     fileBuf += std::string(src_addr, src_addr + sbuf.st_size);
