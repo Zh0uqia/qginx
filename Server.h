@@ -13,6 +13,7 @@
 #include <arpa/inet.h>       // For inet_addr()
 #include <unistd.h>          // For close()
 #include <netinet/in.h>      // For sockaddr_in
+#include <signal.h>
 
 #include <RequestHandler.h>
 #include <Dispatcher.h>
@@ -22,6 +23,7 @@ class Server
 public:
     void start(int p);
     void handNewConn();
+    static void handleSigpipe(int signum);
 
 private:
     int port_;

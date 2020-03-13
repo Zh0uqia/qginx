@@ -8,6 +8,10 @@ void Server::start(int p){
     port_ = p; 
 }
 
+void Server::handleSigpipe(int signum){
+    printf("Caught signal SIGPIPE %d\n", signum);
+}
+
 void Server::handNewConn(){
     // Creating socket file descriptor
     int opt = 1;
@@ -49,6 +53,8 @@ void Server::handNewConn(){
     dbPrint("socket listening" << std::endl);
     
     while (true){
+        signal(SIGPIPE, handleSigpipe);
+
         int addrlen = sizeof(address_);
 
         if ((newSocket_ = accept(serverFD_, (struct sockaddr *)&address_,
