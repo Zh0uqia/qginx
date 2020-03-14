@@ -9,7 +9,7 @@ void Server::start(int p){
 }
 
 void Server::handleSigpipe(int signum){
-    printf("Caught signal SIGPIPE %d\n", signum);
+    dbPrint("Caught signal SIGPIPE %d\n", signum);
 }
 
 void Server::handNewConn(){
