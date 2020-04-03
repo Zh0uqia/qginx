@@ -12,3 +12,4 @@
  
 
 #define BUFFERLENGTH 20000
+#define WORKER_NUMBER 4

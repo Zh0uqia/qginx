@@ -9,7 +9,7 @@ void Server::start(int p){
 }
 
 void Server::handleSigpipe(int signum){
-    dbPrint("Caught signal SIGPIPE %d\n", signum);
+    dbPrint("Caught signal SIGPIPE " << signum << std::endl);
 }
 
 void Server::handNewConn(){
