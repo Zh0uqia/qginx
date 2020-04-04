@@ -16,21 +16,40 @@
 class Process
 {
 public:
-    typedef void (*spawn_proc_pt) ();
+    typedef void (*spawn_proc_pt) (pid_t pid, void *data);
+    
+    typedef struct {
+        pid_t pid;
+        int status;
+        spawn_proc_pt proc;
+        void *data;
+    }process_t;
+
+    static process_t processes[MAX_PROCESSES];
 
     void startMasterProcess();
     
     void startSingleProcess();
 
     void startWorkerProcess(int n);
-    
-    void spawnProcess();
+   
+    static void workerProcessInit(pid_t pid, void *data);
 
-    void workerProcessCycle();
+    static void processEvents(void *data);
 
-    void mutexInit();
+    pid_t spawnProcess(spawn_proc_pt proc, void *data);
+
+    static void workerProcessCycle(pid_t pid, void *data);
+
+    static void mutexInit();
 
 private:
-    
+    struct mt{
+        int num;
+        pthread_mutex_t mutex;
+        pthread_mutexattr_t mutexattr;
+    };
+
+    inline static struct mt* mm;
 };
 
