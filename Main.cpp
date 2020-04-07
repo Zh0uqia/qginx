@@ -1,18 +1,18 @@
 #include <iostream>
 #include <Server.h>
-#include <Process.h>
+#include <MasterProcess.h>
 
 int main(int argc, char *argv[])
 {
     int port = 8080;
+    int serverFD;
     /*
     Server myHTTPServer;
     myHTTPServer.start(port);
-
-    myHTTPServer.handNewConn();
+    serverFD = myHTTPServer.serverInit();
     */
-    Process masterProcess;
-    masterProcess.startMasterProcess();
+    MasterProcess masterProcess;
+    masterProcess.startMasterProcess(serverFD);
 
     return 0;
 }

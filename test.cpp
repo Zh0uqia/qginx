@@ -11,12 +11,14 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#include <sys/epoll.h>
 
 using namespace std;
 
 int main(){
     int result;
     
+    struct epoll_event ev;
     struct mt
     {
         int num;

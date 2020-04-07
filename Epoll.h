@@ -27,10 +27,12 @@ public:
     int epollDeleteEvent();
 
 private:
+    /*
     typedef union epoll_data{
         void *ptr;
         int fd;
     }epoll_data_t;
+    */
 
     struct epoll_event{
         uint32_t events;

@@ -9,7 +9,7 @@ int epollInit(){
         return -1;
     }
 
-    return 0;
+    return epollFd_;
 }
 
 void epollAddEvent(){

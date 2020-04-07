@@ -12,7 +12,17 @@ void Server::handleSigpipe(int signum){
     dbPrint("Caught signal SIGPIPE " << signum << std::endl);
 }
 
-void Server::handNewConn(){
+int Server::setNonBlocking(){
+    int flags;
+
+    if ((flags = fcntl(serverFD_, F_GETFL, 0)) == -1)
+        flags=0;
+
+    return fcntl(serverFD_, F_SETFL, flags | O_NONBLOCK);
+}
+
+int Server::serverInit(){
+
     // Creating socket file descriptor
     int opt = 1;
 
@@ -51,7 +61,14 @@ void Server::handNewConn(){
         exit(EXIT_FAILURE);
     }
     dbPrint("socket listening" << std::endl);
-    
+
+    setNonBlocking();
+
+    return serverFD_;
+}
+
+
+void Server::handNewConn(){
     while (true){
         signal(SIGPIPE, handleSigpipe);
 

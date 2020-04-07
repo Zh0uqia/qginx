@@ -22,15 +22,18 @@ class Server
 {
 public:
     void start(int p);
+    void serverInit();
     void handNewConn();
     static void handleSigpipe(int signum);
+    int setNonBlocking();
 
 private:
     int port_;
     bool started_;
+    int serverFD_;
 
     char readBuffer_[BUFFERLENGTH];
-    int serverFD_, newSocket_;
+    int newSocket_;
     struct sockaddr_in address_;
 
 };
