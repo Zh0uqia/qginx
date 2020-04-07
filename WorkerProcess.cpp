@@ -2,7 +2,7 @@
 #include <WorkerProcess.h>
 
 void WorkerProcess::workerProcessCycle(void *data, int serverFD, struct mt* shmMutex){
-    workerProcessInit(data, serverFD);
+    // workerProcessInit(data, serverFD);
             
     for (int j=0; j<20; j++){
         processEvents(data, serverFD, shmMutex);

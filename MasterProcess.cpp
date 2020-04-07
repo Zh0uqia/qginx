@@ -15,7 +15,9 @@ void MasterProcess::startWorkerProcess(int n, int serverFD){
         Process pcs;
         WorkerProcess workerProcess;
 
-        auto cb = std::bind(&WorkerProcess::workerProcessCycle, &workerProcess);
+        auto cb = std::bind(&WorkerProcess::workerProcessCycle, \
+                            &workerProcess, std::placeholders::_1, \
+                            std::placeholders::_2, std::placeholders::_3);
 
         pid = pcs.spawnProcess(cb, (void *) (intptr_t) i, serverFD, mutexShmPTR);
         if (pid == 0)
