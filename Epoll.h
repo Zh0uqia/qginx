@@ -22,23 +22,11 @@ class Epoll
 public:
     int epollInit();
 
-    EventState epollAddEvent();
+    int epollAddListenEvent();
 
     int epollDeleteEvent();
 
 private:
-    /*
-    typedef union epoll_data{
-        void *ptr;
-        int fd;
-    }epoll_data_t;
-    */
-
-    struct epoll_event{
-        uint32_t events;
-        epoll_data_t data;
-    };
-
     int epollFd_;
 };
 

@@ -26,7 +26,7 @@ int Server::serverInit(){
     // Creating socket file descriptor
     int opt = 1;
 
-    if ((serverFD_ = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    if ((serverFD = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
         std::perror("socket failed");
         exit(EXIT_FAILURE);
@@ -34,7 +34,7 @@ int Server::serverInit(){
     dbPrint("socket created" << std::endl);
     
     // Forcefully attaching socket to the port 8080
-    if (setsockopt(serverFD_, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+    if (setsockopt(serverFD, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
                                                   &opt, sizeof(opt)))
     {
         std::perror("set sockopt failed");
@@ -47,7 +47,7 @@ int Server::serverInit(){
     address_.sin_port = htons(port_);
 
     // Forcefully attaching socket to the port 8080
-    if (bind(serverFD_, (struct sockaddr *)&address_,
+    if (bind(serverFD, (struct sockaddr *)&address_,
                                  sizeof(address_))<0)
     {
         std::perror("bind failed");
@@ -55,16 +55,17 @@ int Server::serverInit(){
     }
     dbPrint("socket binded" << std::endl);
 
-    if (listen(serverFD_, 3) < 0)
+    if (listen(serverFD, 3) < 0)
     {
         std::perror("listen failed");
         exit(EXIT_FAILURE);
     }
     dbPrint("socket listening" << std::endl);
 
-    setNonBlocking();
+    if (setNonBlocking() == -1)
+        std::perror("set non-blocking failed");
 
-    return serverFD_;
+    return serverFD;
 }
 
 

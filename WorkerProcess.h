@@ -8,6 +8,7 @@
 #include <iostream>
 #include <MasterProcess.h>
 #include <Mutex.h>
+#include <Epoll.h>
 
 class WorkerProcess 
 {
@@ -30,7 +31,9 @@ public:
 
     void workerProcessCycle(void *data, int serverFD, struct mt* shmMutex);
 
-    private:
+private:
+    int epollFD;
+    struct epoll_event* events;
 };
 
 

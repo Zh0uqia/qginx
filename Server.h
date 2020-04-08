@@ -18,11 +18,13 @@
 #include <RequestHandler.h>
 #include <Dispatcher.h>
 
+int serverFD;
+
 class Server
 {
 public:
     void start(int p);
-    void serverInit();
+    int serverInit();
     void handNewConn();
     static void handleSigpipe(int signum);
     int setNonBlocking();
@@ -30,8 +32,7 @@ public:
 private:
     int port_;
     bool started_;
-    int serverFD_;
-
+    
     char readBuffer_[BUFFERLENGTH];
     int newSocket_;
     struct sockaddr_in address_;

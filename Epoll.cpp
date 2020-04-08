@@ -12,7 +12,11 @@ int epollInit(){
     return epollFd_;
 }
 
-void epollAddEvent(){
-
+int epollAddListenEvent(int s_fd){
+    struct epoll_event listenEvent;
+    listenEvent.data.fd = s_fd;
+    listenEvent.events = EPOLLIN;
+    
+    return epoll_ctl(epollFd_, EPOLL_CTL_ADD, s_fd, &listenEvent);
 }
 

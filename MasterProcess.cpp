@@ -35,6 +35,7 @@ void MasterProcess::mutexInit(){
     pthread_mutexattr_setpshared(&mm->mutexattr, PTHREAD_PROCESS_SHARED);
     pthread_mutex_init(&mm->mutex, &mm->mutexattr);
 
+    // create shared memory space and bind it with a pointer 
     mutexShmID = shmget(IPC_PRIVATE, sizeof(mt), IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
     mutexShmPTR = (mt*) shmat(mutexShmID, 0, 0);
     mutexShmPTR = mm;

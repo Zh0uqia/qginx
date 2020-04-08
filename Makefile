@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -Wall -g
 INCLUDES = -I./ -I./fastcgi 
-SRCS = Main.cpp RequestHandler.cpp Dispatcher.cpp Controller.cpp \
+SRCS = Main.cpp Server.cpp RequestHandler.cpp Dispatcher.cpp Controller.cpp \
 	   Response.cpp MasterProcess.cpp Process.cpp WorkerProcess.cpp 
 
 DEBUG ?= 1
