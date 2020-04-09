@@ -15,13 +15,16 @@ void Server::handleSigpipe(int signum){
 int Server::setNonBlocking(){
     int flags;
 
-    if ((flags = fcntl(serverFD_, F_GETFL, 0)) == -1)
+    if ((flags = fcntl(serverFD, F_GETFL, 0)) == -1)
         flags=0;
 
-    return fcntl(serverFD_, F_SETFL, flags | O_NONBLOCK);
+    return fcntl(serverFD, F_SETFL, flags | O_NONBLOCK);
 }
 
-int Server::serverInit(){
+cycle_t Server::serverInit(){
+    cycle_t cycle; 
+    connection_t *c;
+    listening_t *ls;
 
     // Creating socket file descriptor
     int opt = 1;
@@ -65,7 +68,12 @@ int Server::serverInit(){
     if (setNonBlocking() == -1)
         std::perror("set non-blocking failed");
 
-    return serverFD;
+    c.fd = serverFD;
+    ls.fd = serverFD;
+    ls.sockaddr = *address_;
+    cycle.listening = ls;
+
+    return cycle;
 }
 
 
@@ -75,7 +83,7 @@ void Server::handNewConn(){
 
         int addrlen = sizeof(address_);
 
-        if ((newSocket_ = accept(serverFD_, (struct sockaddr *)&address_,
+        if ((newSocket_ = accept(serverFD, (struct sockaddr *)&address_,
                            (socklen_t*)&addrlen))<0)
         {
             std::perror("accept failer");

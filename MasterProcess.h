@@ -9,12 +9,13 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <Mutex.h>
+#include <Core.h>
 
 class MasterProcess
 {
 public:
-    void startMasterProcess(int serverFD);
-    void startWorkerProcess(int n, int serverFD);
+    void startMasterProcess(cycle_t*);
+    void startWorkerProcess(cycle_t*);
     void mutexInit();
 
 private:

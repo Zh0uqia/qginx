@@ -1,17 +1,17 @@
 #include <iostream>
 #include <MasterProcess.h>
 
-void MasterProcess::startMasterProcess(int serverFD){
+void MasterProcess::startMasterProcess(cycle_t* cycle){
     mutexInit();
-    startWorkerProcess(WORKER_NUMBER, serverFD);
+    startWorkerProcess(cycle);
 
 }
 
-void MasterProcess::startWorkerProcess(int n, int serverFD){
+void MasterProcess::startWorkerProcess(cycle_t* cycle){
     int i;
     pid_t pid;
 
-    for (i=0; i<n; i++){
+    for (i=0; i<WORKER_NUMBER; i++){
         Process pcs;
         WorkerProcess workerProcess;
 
@@ -19,7 +19,7 @@ void MasterProcess::startWorkerProcess(int n, int serverFD){
                             &workerProcess, std::placeholders::_1, \
                             std::placeholders::_2, std::placeholders::_3);
 
-        pid = pcs.spawnProcess(cb, (void *) (intptr_t) i, serverFD, mutexShmPTR);
+        pid = pcs.spawnProcess(cb, (void *) (intptr_t) i, cycle, mutexShmPTR);
         if (pid == 0)
             break;
         

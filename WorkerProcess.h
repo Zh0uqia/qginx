@@ -9,10 +9,13 @@
 #include <MasterProcess.h>
 #include <Mutex.h>
 #include <Epoll.h>
+#include <Core.h>
 
 class WorkerProcess 
 {
 public:
+    WorkerProcess();
+
     /*
     typedef struct {
         pid_t pid;
@@ -25,15 +28,17 @@ public:
 
     // process_t processes[MAX_PROCESSES];
 
-    void workerProcessInit(void *data, int serverFD);
+    void workerProcessInit(void *data, cycle_t* cycle);
 
-    void processEvents(void *data, int serverFD, struct mt* shmMutex);
+    void processEvents(void *data, cycle_t* cycle, struct mt* shmMutex);
 
-    void workerProcessCycle(void *data, int serverFD, struct mt* shmMutex);
+    void workerProcessCycle(void *data, cycle_t* cycle, struct mt* shmMutex);
 
 private:
     int epollFD;
     struct epoll_event* events;
+    int heldLock;
+    int acceptEvent;
 };
 
 

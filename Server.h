@@ -15,21 +15,21 @@
 #include <netinet/in.h>      // For sockaddr_in
 #include <signal.h>
 
+#include <Core.h>
 #include <RequestHandler.h>
 #include <Dispatcher.h>
-
-int serverFD;
 
 class Server
 {
 public:
     void start(int p);
-    int serverInit();
+    cycle_t serverInit();
     void handNewConn();
     static void handleSigpipe(int signum);
     int setNonBlocking();
 
 private:
+    int serverFD;
     int port_;
     bool started_;
     

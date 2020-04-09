@@ -1,18 +1,19 @@
 #include <iostream>
 #include <Server.h>
 #include <MasterProcess.h>
+#include <Core.h>
 
 int main(int argc, char *argv[])
 {
     int port = 8080;
-    int serverFD;
+    cycle_t cycle;
     
     Server myHTTPServer;
     myHTTPServer.start(port);
-    serverFD = myHTTPServer.serverInit();
+    cycle = myHTTPServer.serverInit();
     
     MasterProcess masterProcess;
-    masterProcess.startMasterProcess(serverFD);
+    masterProcess.startMasterProcess(*cycle);
 
     return 0;
 }

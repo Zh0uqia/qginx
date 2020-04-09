@@ -1,4 +1,5 @@
 #pragma once
+#include <conf.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -7,14 +8,15 @@
 #include <string.h>
 #include <sys/epoll.h>
 #include <unistd.h>
+#include <Event.h>
 
 enum EventState{
-    ListenOK;
-    ListenError;
-    ReadOK;
-    ReadError;
-    WriteOK;
-    WriteError;
+    ListenOK = 1,
+    ListenError,
+    ReadOK,
+    ReadError,
+    WriteOK,
+    WriteError
 };
 
 class Epoll
@@ -22,7 +24,7 @@ class Epoll
 public:
     int epollInit();
 
-    int epollAddListenEvent();
+    int epollAddListenEvent(int);
 
     int epollDeleteEvent();
 
