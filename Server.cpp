@@ -68,10 +68,11 @@ cycle_t Server::serverInit(){
     if (setNonBlocking() == -1)
         std::perror("set non-blocking failed");
 
-    c.fd = serverFD;
-    ls.fd = serverFD;
-    ls.sockaddr = *address_;
+    c->fd = serverFD;
+    ls->fd = serverFD;
+    ls->sockaddr = &address_;
     cycle.listening = ls;
+    cycle.connection = c;
 
     return cycle;
 }

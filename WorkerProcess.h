@@ -10,6 +10,7 @@
 #include <Mutex.h>
 #include <Epoll.h>
 #include <Core.h>
+#include <Handler.h>
 
 class WorkerProcess 
 {
@@ -35,10 +36,15 @@ public:
     void workerProcessCycle(void *data, cycle_t* cycle, struct mt* shmMutex);
 
 private:
+    Epoll epl;
     int epollFD;
+    struct epoll_event event;
     struct epoll_event* events;
+
     int heldLock;
     int acceptEvent;
+
+    Handler handler;
 };
 
 

@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     cycle = myHTTPServer.serverInit();
     
     MasterProcess masterProcess;
-    masterProcess.startMasterProcess(*cycle);
+    masterProcess.startMasterProcess(&cycle);
 
     return 0;
 }

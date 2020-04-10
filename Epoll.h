@@ -24,7 +24,7 @@ class Epoll
 public:
     int epollInit();
 
-    int epollAddListenEvent(int);
+    int epollAddEvent(int);
 
     int epollDeleteEvent();
 
