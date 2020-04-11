@@ -11,6 +11,9 @@
 #include <Epoll.h>
 #include <Core.h>
 #include <Handler.h>
+#include <queue>
+
+#define POST_EVENT 2
 
 class WorkerProcess 
 {
@@ -35,11 +38,19 @@ public:
 
     void workerProcessCycle(void *data, cycle_t* cycle, struct mt* shmMutex);
 
+    int trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmMutex);
+    int enableAcceptEvent(cycle_t *cycle);
+    void getEventQueue(cycle_t *cycle);
+    void processPostedEvent(cycle_t* cycle, std::queue<event_t*> arr);
+ 
 private:
     Epoll epl;
     int epollFD;
     struct epoll_event event;
     struct epoll_event* events;
+    struct epoll_event* eventList;
+    std::queue<event_t*> postedAcceptEvents;
+    std::queue<event_t*> postedDelayEvents;
 
     int heldLock;
     int acceptEvent;

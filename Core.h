@@ -22,4 +22,3 @@ struct cycle_s{
 
 typedef struct cycle_s cycle_t;
 
-

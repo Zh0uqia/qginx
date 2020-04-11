@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <sys/types.h>       // For data types
 #include <errno.h>           // For errno 
 #include <string>

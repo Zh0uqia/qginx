@@ -1,16 +1,19 @@
 #pragma once
 #include <functional>
+#include <Core.h>
+#include <conf.h>
 
-// typedef void (*event_handler_pt)();
-using eventHandlerPtr = std::function<void()>;
+struct event_s;
+typedef struct event_s event_t;
+
+using EventHandlerFunc = std::function<void(event_t* ev)>;
     
-
 struct event_s{
     void *data;
-    eventHandlerPtr handler;
+    EventHandlerFunc handler;
 
     int active, accept;
 };
 
-typedef struct event_s event_t;
+// typedef struct event_s event_t;
 

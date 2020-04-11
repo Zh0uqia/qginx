@@ -8,25 +8,20 @@
 #include <string.h>
 #include <sys/epoll.h>
 #include <unistd.h>
-#include <Event.h>
+#include <Core.h>
 
-enum EventState{
-    ListenOK = 1,
-    ListenError,
-    ReadOK,
-    ReadError,
-    WriteOK,
-    WriteError
-};
+#define READ_EVENT (EPOLLIN | EPOLLRDHUP)
+#define WRITE_EVENT EPOLLOUT
+#define DISABLE_EVENT 2
 
 class Epoll
 {
 public:
     int epollInit();
 
-    int epollAddEvent(int);
+    int epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flag);
 
-    int epollDeleteEvent();
+    int epollDeleteEvent(int ep, event_t *ev, intptr_t event, uintptr_t flag);
 
 private:
     int epollFd_;
