@@ -121,7 +121,7 @@ int WorkerProcess::enableAcceptEvent(cycle_t *cycle){
     c = ls->connection;
 
     // add accept event to epoll 
-    if (epl.epollAddEvent(epollFD, c->read, READ_EVENT, DISABLE_EVENT) == 0)
+    if (epl.epollAddEvent(epollFD, c->read, READ_EVENT, 0) == 0)
         return 0;
 
     return 1;
