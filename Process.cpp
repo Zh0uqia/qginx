@@ -2,6 +2,8 @@
 #include <Process.h>
 
 pid_t Process::spawnProcess(TCallback proc, void *data, cycle_t* cycle, struct mt* shmMutex){
+    dbPrint("Enter spawnProcess" << std::endl);
+
     pid_t pid;
 
     pid = fork();

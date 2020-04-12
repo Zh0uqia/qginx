@@ -2,7 +2,7 @@
 #include <Epoll.h>
 
 int Epoll::epollInit(){
-    epollFd_ = epoll_create(0);
+    epollFd_ = epoll_create1(0);
 
     if (epollFd_ < 0) {
         perror("epoll_create");

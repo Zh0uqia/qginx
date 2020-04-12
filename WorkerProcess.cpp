@@ -7,6 +7,7 @@ WorkerProcess::WorkerProcess()
 {}
 
 void WorkerProcess::workerProcessCycle(void *data, cycle_t* cycle, struct mt* shmMutex){
+    dbPrint("Worker process cycle of [process] " << getpid() << std::endl);
     workerProcessInit(data, cycle);
             
     for (int j=0; j<20; j++){
@@ -33,20 +34,24 @@ void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
     ls->connection = c;
 
     // initiate cycle 
-    cycle->read_event = (event_t*) malloc(sizeof(event_t));
-    cycle->write_event = (event_t*) malloc(sizeof(event_t));
+    auto acceptHandler = std::bind(&Handler::acceptEventHandler, \
+                            &handler, std::placeholders::_1);
+    
+    cycle->read_event = new event_t;
+    cycle->write_event = new event_t;
 
     rev = cycle->read_event;
     wev = cycle->write_event;
+
+    dbPrint("Read event address is " << &rev << std::endl);
 
     //initiate connection 
     c->read=rev;
     c->write=wev;
 
     // initiate read and write events 
-    auto acceptHandler = std::bind(&Handler::acceptEventHandler, \
-                            &handler, std::placeholders::_1);
-    rev->handler = acceptHandler; // fatal 
+   
+    rev->handl = acceptHandler; // fatal
     rev->accept=1; // fatal
     rev->active=0; // fatal 
     rev->data=c;
@@ -171,6 +176,6 @@ void WorkerProcess::processPostedEvent(cycle_t* cycle, \
     while (!arr.empty()){
         cur = arr.front();
         arr.pop();
-        cur->handler(cur);
+    //    cur->handler(cur);
     }
 }

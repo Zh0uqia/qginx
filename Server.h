@@ -16,6 +16,7 @@
 #include <signal.h>
 
 #include <Core.h>
+#include <MasterProcess.h>
 #include <RequestHandler.h>
 #include <Dispatcher.h>
 
@@ -23,7 +24,7 @@ class Server
 {
 public:
     void start(int p);
-    cycle_t serverInit();
+    void serverInit();
     void handNewConn();
     static void handleSigpipe(int signum);
     int setNonBlocking();

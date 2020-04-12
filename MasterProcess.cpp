@@ -11,7 +11,8 @@ void MasterProcess::startWorkerProcess(cycle_t* cycle){
     int i;
     pid_t pid;
 
-    for (i=0; i<WORKER_NUMBER; i++){
+    // for (i=0; i<WORKER_NUMBER; i++){
+    for (i=0; i<1; i++){
         Process pcs;
         WorkerProcess workerProcess;
 

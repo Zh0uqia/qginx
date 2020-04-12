@@ -21,8 +21,8 @@ int Server::setNonBlocking(){
     return fcntl(serverFD, F_SETFL, flags | O_NONBLOCK);
 }
 
-cycle_t Server::serverInit(){
-    cycle_t cycle; 
+void Server::serverInit(){
+    cycle_t *cycle; 
     connection_t *c;
     listening_t *ls;
 
@@ -65,16 +65,31 @@ cycle_t Server::serverInit(){
     }
     dbPrint("socket listening" << std::endl);
 
-    if (setNonBlocking() == -1)
+    if (setNonBlocking() == -1){
         std::perror("set non-blocking failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // initialize
+    cycle = new cycle_t;
+    c = new connection_t;
+    ls = new listening_t;
+
+    if (cycle == NULL || c == NULL || ls == NULL){
+        std::perror("Initialization of cycle, c and ls failed");
+        return;
+    }
 
     c->fd = serverFD;
     ls->fd = serverFD;
     ls->sockaddr = &address_;
-    cycle.listening = ls;
-    cycle.connection = c;
+    cycle->listening = ls;
+    cycle->connection = c;
 
-    return cycle;
+    MasterProcess masterProcess;
+    masterProcess.startMasterProcess(cycle);
+
+    return;
 }
 
 
