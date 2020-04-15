@@ -31,9 +31,6 @@ int Epoll::epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags){
         prev = EPOLLIN|EPOLLRDHUP;
     }
 
-    dbPrint("ev->active is " << ev->active << std::endl);
-    dbPrint("e->active is " << e->active << std::endl);
-
     if (e->active == 1) {
         op = EPOLL_CTL_MOD;
         events |= prev;
