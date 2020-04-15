@@ -9,6 +9,8 @@
 *.txt
 .gdb_history
 core
+webserver
+a
 
 # Packages #
 ############
