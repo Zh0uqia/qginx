@@ -2,6 +2,17 @@
 #include <Server.h>
 #include <regex>
 
+Server::~Server(){
+    
+    delete cycle;
+    delete c;
+    delete ls;
+    
+    cycle = NULL;
+    c = NULL;
+    ls = NULL;
+}
+
 void Server::start(int p){
     dbPrint("started" << std::endl);
     started_ = true;
@@ -22,10 +33,6 @@ int Server::setNonBlocking(){
 }
 
 void Server::serverInit(){
-    cycle_t *cycle; 
-    connection_t *c;
-    listening_t *ls;
-
     // Creating socket file descriptor
     int opt = 1;
 
@@ -81,6 +88,7 @@ void Server::serverInit(){
     }
 
     c->fd = serverFD;
+    c->listening = ls;
     ls->fd = serverFD;
     ls->sockaddr = &address_;
     cycle->listening = ls;

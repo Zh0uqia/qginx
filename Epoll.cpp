@@ -5,7 +5,7 @@ int Epoll::epollInit(){
     epollFd_ = epoll_create1(0);
 
     if (epollFd_ < 0) {
-        perror("epoll_create");
+        perror("Epoll create failed");
         return -1;
     }
 
@@ -31,18 +31,24 @@ int Epoll::epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags){
         prev = EPOLLIN|EPOLLRDHUP;
     }
 
-    if (e->active) {
+    dbPrint("ev->active is " << ev->active << std::endl);
+    dbPrint("e->active is " << e->active << std::endl);
+
+    if (e->active == 1) {
         op = EPOLL_CTL_MOD;
         events |= prev;
-    } else {
-        op = EPOLL_CTL_ADD;
+    } else if (e->active < 0) {
+        op = EPOLL_CTL_ADD; // accept event 
     }
     
     ee.events = events | (uint32_t) flags;
     ee.data.ptr = c;
+    
+    dbPrint("op code is: "<< EPOLL_CTL_ADD << " " << EPOLL_CTL_MOD << " " << EPOLL_CTL_DEL << std::endl);
+    dbPrint("Prepare to add event: fd " << c->fd << " op " << op << " event " \
+            << ee.events << std::endl);
 
     if (epoll_ctl(ep, op, c->fd, &ee) == -1) {
-        perror("Adding event to epoll");
         return 0;
 
     }
@@ -83,14 +89,18 @@ int Epoll::epollDeleteEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags
         ee.events = 0;
         ee.data.ptr = NULL;
     }
+    
+    dbPrint("Prepare to delete event: fd " << c->fd << " op " << op << " event " \
+            << ee.events << std::endl);
 
-    if (epoll_ctl(ep, op, c->fd, &ee) == -1)
+    if (epoll_ctl(ep, op, c->fd, &ee) == -1){
         return 0;
+    }
     
     dbPrint("Epoll delete event: fd " << c->fd << " op " << op << " event " \
             << ee.events << std::endl);
 
     ev->active = 0;
-
+        
     return 1;
 }

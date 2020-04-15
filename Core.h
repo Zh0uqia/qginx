@@ -1,5 +1,4 @@
 #pragma once
-#include <Connection.h>
 #include <Event.h>
 
 typedef struct connection_s connection_t;
@@ -22,3 +21,12 @@ struct cycle_s{
 
 typedef struct cycle_s cycle_t;
 
+struct connection_s{
+    void *data;
+    event_t *read;
+    event_t *write;
+    
+    listening_t *listening;
+
+    int fd;
+};

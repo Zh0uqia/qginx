@@ -23,6 +23,7 @@
 class Server
 {
 public:
+    ~ Server();
     void start(int p);
     void serverInit();
     void handNewConn();
@@ -37,6 +38,9 @@ private:
     char readBuffer_[BUFFERLENGTH];
     int newSocket_;
     struct sockaddr_in address_;
-
+    
+    cycle_t* cycle;
+    connection_t* c;
+    listening_t* ls;
 };
 

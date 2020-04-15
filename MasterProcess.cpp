@@ -11,11 +11,11 @@ void MasterProcess::startWorkerProcess(cycle_t* cycle){
     int i;
     pid_t pid;
 
-    // for (i=0; i<WORKER_NUMBER; i++){
-    for (i=0; i<1; i++){
+    for (i=0; i<WORKER_NUMBER; i++){
         Process pcs;
-        WorkerProcess workerProcess;
+        WorkerProcess workerProcess((void *)(intptr_t) i, cycle);
 
+        dbPrint("begin process " << i << std::endl);
         auto cb = std::bind(&WorkerProcess::workerProcessCycle, \
                             &workerProcess, std::placeholders::_1, \
                             std::placeholders::_2, std::placeholders::_3);
@@ -23,9 +23,24 @@ void MasterProcess::startWorkerProcess(cycle_t* cycle){
         pid = pcs.spawnProcess(cb, (void *) (intptr_t) i, cycle, mutexShmPTR);
         if (pid == 0)
             break;
-        
-    }
+        else if (pid<0){
+            return;
+        }
     
+    }
+
+    if (pid > 0){
+        int status;
+        int childid;
+        while ((childid = wait(&status)) > 0){
+            if (WIFEXITED(status)){
+                dbPrint("Child process " << childid << " existed with code " << WEXITSTATUS(status) << std::endl);
+            }else{
+                dbPrint("Child process existed abnormally." << std::endl);
+            }
+        }
+    }
+    return;
 }
 
 void MasterProcess::mutexInit(){

@@ -6,12 +6,12 @@
 struct event_s;
 typedef struct event_s event_t;
 
-typedef std::function<void(event_t* ev)> EventHandlerFunc;
+typedef std::function<void(event_t* ev, int epollFD)> EventHandlerFunc;
     
 struct event_s{
     void *data;
     EventHandlerFunc handl;
-
+    
     int active;
     int accept;
 };

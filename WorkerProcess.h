@@ -18,7 +18,8 @@
 class WorkerProcess 
 {
 public:
-    WorkerProcess();
+    WorkerProcess(void*, cycle_t*);
+    ~WorkerProcess();
 
     /*
     typedef struct {
@@ -56,6 +57,11 @@ private:
     int acceptEvent;
 
     Handler handler;
+
+    event_t *rev, *wev;
+    listening_t *ls;
+    connection_t *c;
+
 };
 
 

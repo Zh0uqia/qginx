@@ -1,49 +1,25 @@
 #include <iostream>
 #include <WorkerProcess.h>
 
-WorkerProcess::WorkerProcess()
+WorkerProcess::WorkerProcess(void *data, cycle_t* cycle)
     : heldLock(0),
     acceptEvent(1)
-{}
-
-void WorkerProcess::workerProcessCycle(void *data, cycle_t* cycle, struct mt* shmMutex){
-    dbPrint("Worker process cycle of [process] " << getpid() << std::endl);
-    workerProcessInit(data, cycle);
-            
-    for (int j=0; j<20; j++){
-        processEvents(data, cycle, shmMutex);
-                        
-    }
-        
-}
-
-void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
-    event_t *rev, *wev;
-    listening_t *ls;
-    connection_t *c;
-
-    // initiate epoll 
-    epollFD = epl.epollInit();
-    
-    if (epollFD == -1)
-        return;
-
-    // initiate connection and events
+{
+     // initiate connection and events
     ls = cycle->listening;
     c = cycle->connection;
     ls->connection = c;
 
     // initiate cycle 
     auto acceptHandler = std::bind(&Handler::acceptEventHandler, \
-                            &handler, std::placeholders::_1);
+                            &handler, std::placeholders::_1, \
+                            std::placeholders::_2);
     
     cycle->read_event = new event_t;
     cycle->write_event = new event_t;
 
     rev = cycle->read_event;
     wev = cycle->write_event;
-
-    dbPrint("Read event address is " << &rev << std::endl);
 
     //initiate connection 
     c->read=rev;
@@ -57,14 +33,36 @@ void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
     rev->data=c;
     wev->data=c;
 
-    events = (struct epoll_event*) calloc(MAX_EPOLLFD, \ 
-                                          sizeof(struct epoll_event));
+}
+
+WorkerProcess::~WorkerProcess(){
+    delete rev;
+    delete wev;
     
-    /*
-    // all worker processes put listening event into epoll during initiation
-    if (epl.epollAddEvent(rev, READ_EVENT, 0) == 0)
-        std::perror("Add listening event");
-    */ 
+    rev = NULL;
+    wev = NULL;
+}
+
+void WorkerProcess::workerProcessCycle(void *data, cycle_t* cycle, struct mt* shmMutex){
+    dbPrint("Worker process cycle of [process] " << getpid() << std::endl);
+    workerProcessInit(data, cycle);
+            
+    for (int j=0; j<10; j++){
+    // for ( ;; ){
+        // dbPrint("Process " << getpid() << " loop " << j << std::endl);
+        processEvents(data, cycle, shmMutex);
+                        
+    }
+      
+}
+
+void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
+    // initiate epoll 
+    epollFD = epl.epollInit();
+    
+    if (epollFD == -1)
+        return;
+
 }
 
 void WorkerProcess::processEvents(void *data, cycle_t* cycle, struct mt* shmMutex){
@@ -106,7 +104,7 @@ int WorkerProcess::trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmM
     // if did not get the lock, but hold the lock in last round, then unlock it 
     if (heldLock = 1){
         connection_t *c;
-        c = cycle->listening->connection;
+        c = cycle->connection;
 
         if (epl.epollDeleteEvent(epollFD, c->read, READ_EVENT, DISABLE_EVENT) == 0){
             std::perror("Deleting the accept event");
@@ -126,8 +124,10 @@ int WorkerProcess::enableAcceptEvent(cycle_t *cycle){
     c = ls->connection;
 
     // add accept event to epoll 
-    if (epl.epollAddEvent(epollFD, c->read, READ_EVENT, 0) == 0)
+    if (epl.epollAddEvent(epollFD, c->read, READ_EVENT, 0) == 0){
+        std::perror("Adding the accept event");
         return 0;
+    }
 
     return 1;
 }
@@ -167,6 +167,7 @@ void WorkerProcess::getEventQueue(cycle_t *cycle){
             postedDelayEvents.push(wev);
         }
     }
+    free(eventList);
 }
 
 void WorkerProcess::processPostedEvent(cycle_t* cycle, \
@@ -176,6 +177,6 @@ void WorkerProcess::processPostedEvent(cycle_t* cycle, \
     while (!arr.empty()){
         cur = arr.front();
         arr.pop();
-    //    cur->handler(cur);
+        cur->handl(cur, epollFD);
     }
 }

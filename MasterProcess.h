@@ -10,6 +10,8 @@
 #include <sys/shm.h>
 #include <Mutex.h>
 #include <Core.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 class MasterProcess
 {
