@@ -45,4 +45,21 @@ When compling, add
 ```
 After obtaining the call stack, use *addr2line* to locate the code.
 
+# Nginx source code read notes
+## Strategy for high concurrency
+Nginx combines multi-processing and Epoll to handle a large amount of connections and requests. 
 
+### Listening sockets
+*ngx_conf.h* file records important configurations of Nginx, for example, the number of listening sockets, port number, and the number of worker processes. 
+
+During initialization, *ngx_init_cycle()* combines those important information with the *ngx_cycle_s* structure. *ngx_cycle_s* includes information like *listening* and *connection*. The reason that *ngx_cycle_s* records these information is to make processes share them more conveniently (*cycle* is passed as a parameter).
+
+### Master process
+Master process forks several worker processes. It registers callback function of worker process cycle and binds the function with a worker process object <>. If current process is a child process, a worker process cycle would be called. 
+
+Master process waits all the child processes to exit <>. It is because we should free/delete the dynamic memory like cycle, listening and connection after all worker process exit. 
+
+Master process also creates a shared memory for mutex. In Nginx, it implements its own locks, including atomic lock and file lock. Atomic lock is a shared memory among child processes.
+
+### Worker process
+In the constructor of worker process, we *new* the read event and write event of connection, and then add those events into Epoll. Each process has its own epollFD. We should write the initialization in the *constructor*, so that the dynamic memory can be freed or deleted by the *destructor*.
