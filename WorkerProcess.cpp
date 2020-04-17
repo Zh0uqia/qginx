@@ -47,7 +47,7 @@ void WorkerProcess::workerProcessCycle(void *data, cycle_t* cycle, struct mt* sh
     dbPrint("Worker process cycle of [process] " << getpid() << std::endl);
     workerProcessInit(data, cycle);
             
-    for (int j=0; j<10; j++){
+    for (int j=0; j<2000; j++){
     // for ( ;; ){
         // dbPrint("Process " << getpid() << " loop " << j << std::endl);
         processEvents(data, cycle, shmMutex);
@@ -137,11 +137,11 @@ void WorkerProcess::getEventQueue(cycle_t *cycle){
     event_t *rev, *wev;
     uint32_t revent, wevent;
     connection_t *c;
-
+    
     struct epoll_event* eventList = (struct epoll_event*) calloc(MAX_EPOLLFD, \ 
                                                                  sizeof(event));
     
-    int n = epoll_wait(epollFD, eventList, MAX_EPOLLFD, -1);
+    int n = epoll_wait(epollFD, eventList, MAX_EPOLLFD, EPOLL_TIMEOUT);
 
     if (n == 0)
         dbPrint("No event is in the event wait list" << std::endl);

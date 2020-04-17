@@ -8,7 +8,8 @@ int main(int argc, char *argv[])
     Server myHTTPServer;
     myHTTPServer.start(port);
     myHTTPServer.serverInit();
-    
+    // myHTTPServer.handNewConn(); // switch to single process version 
+
     return 0;
 }
 

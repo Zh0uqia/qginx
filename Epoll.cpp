@@ -40,7 +40,8 @@ int Epoll::epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags){
     
     ee.events = events | (uint32_t) flags;
     ee.data.ptr = c;
-    
+    // ee.data.fd = c->fd; // fatal error! epoll_data is a union, not a struct 
+
     dbPrint("op code is: "<< EPOLL_CTL_ADD << " " << EPOLL_CTL_MOD << " " << EPOLL_CTL_DEL << std::endl);
     dbPrint("Prepare to add event: fd " << c->fd << " op " << op << " event " \
             << ee.events << std::endl);
