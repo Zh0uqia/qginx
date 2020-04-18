@@ -47,9 +47,8 @@ void WorkerProcess::workerProcessCycle(void *data, cycle_t* cycle, struct mt* sh
     dbPrint("Worker process cycle of [process] " << getpid() << std::endl);
     workerProcessInit(data, cycle);
             
-    for (int j=0; j<2000; j++){
+    for (int j=0; j<100; j++){
     // for ( ;; ){
-        // dbPrint("Process " << getpid() << " loop " << j << std::endl);
         processEvents(data, cycle, shmMutex);
                         
     }
@@ -87,8 +86,7 @@ void WorkerProcess::processEvents(void *data, cycle_t* cycle, struct mt* shmMute
 int WorkerProcess::trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmMutex){
     // get mutexI
     if (pthread_mutex_trylock(&shmMutex->mutex) == 0){
-        dbPrint("Worker " << data << " got the mutex." << std::endl);
-        
+        dbPrint("Worker " << getpid() << " got the mutex." << std::endl);
         // this process get the lock and does not held the lock 
         if (heldLock == 0){
             if (enableAcceptEvent(cycle) == 0){
@@ -101,8 +99,8 @@ int WorkerProcess::trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmM
         return 1;
     }
     
-    // if did not get the lock, but hold the lock in last round, then unlock it 
-    if (heldLock = 1){
+    // if did not get the lock, but hold the lock in last round, then unlock it
+    if (heldLock == 1){
         connection_t *c;
         c = cycle->connection;
 

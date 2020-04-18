@@ -14,7 +14,7 @@ pid_t Process::spawnProcess(TCallback proc, void *data, cycle_t* cycle, struct m
             return pid;
 
         case 0:
-            // if fork() success, start worker process 
+            // if fork() success, start worker process
             dbPrint( "[son] " << getpid() << " from [parent] " << getppid() << "\n" << std::endl );
             proc(data, cycle, shmMutex);
             break;

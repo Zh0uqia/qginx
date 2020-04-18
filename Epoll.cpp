@@ -51,7 +51,7 @@ int Epoll::epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags){
 
     }
     
-    dbPrint("Epoll add event: fd " << c->fd << " op " << op << " event " \
+    dbPrint("Epoll add event success: fd " << c->fd << " op " << op << " event " \
             << ee.events << std::endl);
     ev->active = 1;
 
@@ -77,12 +77,12 @@ int Epoll::epollDeleteEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags
         prev = EPOLLIN|EPOLLRDHUP;
     }
 
-    if (e->active) {
+    if (e->active == 1) {
         op = EPOLL_CTL_MOD;
         ee.events = prev | (uint32_t) flags;
         ee.data.ptr = c;
 
-    } else {
+    } else if (e->active < 0) {
         op = EPOLL_CTL_DEL;
         ee.events = 0;
         ee.data.ptr = NULL;
@@ -95,7 +95,7 @@ int Epoll::epollDeleteEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags
         return 0;
     }
     
-    dbPrint("Epoll delete event: fd " << c->fd << " op " << op << " event " \
+    dbPrint("Epoll delete event success: fd " << c->fd << " op " << op << " event " \
             << ee.events << std::endl);
 
     ev->active = 0;
