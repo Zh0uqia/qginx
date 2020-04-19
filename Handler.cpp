@@ -1,6 +1,15 @@
 #include <iostream>
 #include <Handler.h>
 
+int Handler::setNonBlock(int fd){
+    int flags;
+
+    if ((flags = fcntl(fd, F_GETFL, 0)) == -1)
+        flags=0;
+
+    return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+}
+
 void Handler::acceptEventHandler(event_t* ev, int epollFD){
     dbPrint("Accept event handler started" << std::endl);
 
@@ -27,6 +36,9 @@ void Handler::acceptEventHandler(event_t* ev, int epollFD){
                 return;
             }
         }
+
+        setNonBlock(acceptFD);
+
         char *pbuf = new char[1024];
         memset(pbuf, 0, 1024);
 

@@ -11,9 +11,10 @@
 #define dbPrint(x);
 #endif
  
-
+#define PORT 8080
 #define BUFFERLENGTH 20000
 #define WORKER_NUMBER 2
 #define MAX_PROCESSES 16
 #define MAX_EPOLLFD 1024
 #define EPOLL_TIMEOUT 5000
+#define MAX_CONNECTIONS 200000

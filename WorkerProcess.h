@@ -32,7 +32,9 @@ public:
     */
 
     // process_t processes[MAX_PROCESSES];
-
+    
+    connection_t* getConnection(cycle_t* cycle, int sFD);
+ 
     void workerProcessInit(void *data, cycle_t* cycle);
 
     void processEvents(void *data, cycle_t* cycle, struct mt* shmMutex);
@@ -58,9 +60,9 @@ private:
 
     Handler handler;
 
-    event_t *rev, *wev;
+    event_t *cycleReadEvent, *cycleWriteEvent, *rev, *wev;
+    connection_t *cycleConnection, *c;
     listening_t *ls;
-    connection_t *c;
 
 };
 

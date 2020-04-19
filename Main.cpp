@@ -3,10 +3,8 @@
 
 int main(int argc, char *argv[])
 {
-    int port = 8080;
-    
     Server myHTTPServer;
-    myHTTPServer.start(port);
+    myHTTPServer.start(PORT);
     myHTTPServer.serverInit();
     // myHTTPServer.handNewConn(); // switch to single process version 
 

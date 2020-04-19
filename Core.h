@@ -14,9 +14,13 @@ struct listening_s{
 typedef struct listening_s listening_t;
 
 struct cycle_s{
+    connection_t *free_connections;
+    int free_connections_n;
+
     connection_t *connection;
-    listening_t *listening;
     event_t *read_event, *write_event;
+    
+    listening_t *listening;
 };
 
 typedef struct cycle_s cycle_t;

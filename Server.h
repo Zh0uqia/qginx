@@ -40,7 +40,6 @@ private:
     struct sockaddr_in address_;
     
     cycle_t* cycle;
-    connection_t* c;
     listening_t* ls;
 };
 

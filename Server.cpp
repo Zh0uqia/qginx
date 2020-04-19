@@ -5,11 +5,9 @@
 Server::~Server(){
     
     delete cycle;
-    delete c;
     delete ls;
     
     cycle = NULL;
-    c = NULL;
     ls = NULL;
 }
 
@@ -79,20 +77,16 @@ void Server::serverInit(){
 
     // initialize
     cycle = new cycle_t;
-    c = new connection_t;
     ls = new listening_t;
 
-    if (cycle == NULL || c == NULL || ls == NULL){
+    if (cycle == NULL || ls == NULL){
         std::perror("Initialization of cycle, c and ls failed");
         return;
     }
 
-    c->fd = serverFD;
-    c->listening = ls;
     ls->fd = serverFD;
     ls->sockaddr = &address_;
     cycle->listening = ls;
-    cycle->connection = c;
 
     MasterProcess masterProcess;
     masterProcess.startMasterProcess(cycle);

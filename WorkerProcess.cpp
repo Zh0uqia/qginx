@@ -7,37 +7,25 @@ WorkerProcess::WorkerProcess(void *data, cycle_t* cycle)
 {
      // initiate connection and events
     ls = cycle->listening;
-    c = cycle->connection;
-    ls->connection = c;
 
     // initiate cycle 
-    auto acceptHandler = std::bind(&Handler::acceptEventHandler, \
-                            &handler, std::placeholders::_1, \
-                            std::placeholders::_2);
-    
-    cycle->read_event = new event_t;
-    cycle->write_event = new event_t;
-
-    rev = cycle->read_event;
-    wev = cycle->write_event;
-
-    //initiate connection 
-    c->read=rev;
-    c->write=wev;
-
-    // initiate read and write events 
    
-    rev->handl = acceptHandler; // fatal
-    rev->accept=1; // fatal
-    rev->active=0; // fatal 
-    rev->data=c;
-    wev->data=c;
-
+    cycle->read_event = (event_t*) calloc(MAX_CONNECTIONS, sizeof(event_t));
+    cycle->write_event = (event_t*) calloc(MAX_CONNECTIONS, sizeof(event_t));
+    cycle->connection = (connection_t*) calloc(MAX_CONNECTIONS, sizeof(connection_t));
+    if (cycle->connection == NULL || cycle->read_event == NULL \
+        || cycle->write_event == NULL)
+        std::perror("Connection of cycle is NULL"); 
+    
+    cycleReadEvent = cycle->read_event;
+    cycleWriteEvent = cycle->write_event;
+    cycleConnection = cycle->connection;
 }
 
 WorkerProcess::~WorkerProcess(){
-    delete rev;
-    delete wev;
+    free(cycleReadEvent);
+    free(cycleWriteEvent);
+    free(cycleConnection);
     
     rev = NULL;
     wev = NULL;
@@ -62,6 +50,65 @@ void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
     if (epollFD == -1)
         return;
 
+    // initialize free connections linked list 
+    int i = MAX_CONNECTIONS;
+    connection_t *next, *c;
+    next = NULL;
+    c = cycle->connection;
+
+    do{
+        i--;
+        
+        c[i].data = next;
+        c[i].read = &cycle->read_event[i];
+        c[i].write = &cycle->write_event[i];
+
+        next = &c[i];
+    }while(i);
+
+    cycle->free_connections = next;
+    cycle->free_connections_n = MAX_CONNECTIONS;
+
+    // initialize conncection, read and write events
+    c = getConnection(cycle, ls->fd); // get a free connection 
+    c->listening = ls;
+    ls->connection = c;
+
+    rev = c->read;
+    rev->accept = 1;
+    rev->active = 0;
+
+    auto acceptHandler = std::bind(&Handler::acceptEventHandler, \
+                            &handler, std::placeholders::_1, \
+                            std::placeholders::_2);
+    rev->handl = acceptHandler;
+
+    wev = c->write;
+    wev->active = 1;
+}
+
+connection_t* WorkerProcess::getConnection(cycle_t* cycle, int sFD){
+    connection_t* c;
+    event_t *revent, *wevent;
+
+    c = cycle->free_connections;
+
+    cycle->free_connections = (connection_t*) c->data; // next node 
+    cycle->free_connections_n--;
+
+    revent = c->read;
+    wevent = c->write;
+    
+    c->read = revent;
+    c->write = wevent;
+    c->fd = sFD;
+
+    memset(revent, 0, sizeof(event_t));
+    memset(wevent, 0, sizeof(event_t));
+    revent->data = c;
+    wevent->data = c;
+
+    return c;
 }
 
 void WorkerProcess::processEvents(void *data, cycle_t* cycle, struct mt* shmMutex){
@@ -101,9 +148,6 @@ int WorkerProcess::trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmM
     
     // if did not get the lock, but hold the lock in last round, then unlock it
     if (heldLock == 1){
-        connection_t *c;
-        c = cycle->connection;
-
         if (epl.epollDeleteEvent(epollFD, c->read, READ_EVENT, DISABLE_EVENT) == 0){
             std::perror("Deleting the accept event");
             return 0;
@@ -115,12 +159,6 @@ int WorkerProcess::trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmM
 }
 
 int WorkerProcess::enableAcceptEvent(cycle_t *cycle){
-    connection_t *c;
-    listening_t *ls;
-
-    ls = cycle->listening;
-    c = ls->connection;
-
     // add accept event to epoll 
     if (epl.epollAddEvent(epollFD, c->read, READ_EVENT, 0) == 0){
         std::perror("Adding the accept event");

@@ -13,11 +13,13 @@
 #include <arpa/inet.h>       // For inet_addr()
 #include <unistd.h>          // For close()
 #include <netinet/in.h>      // For sockaddr_in
+#include <fcntl.h>
 
 class Handler
 {
 public:
-    void acceptEventHandler(event_t* ev, int epollFD);
+   int setNonBlock(int fd);
+   void acceptEventHandler(event_t* ev, int epollFD);
 
 private:
 
