@@ -23,7 +23,7 @@ struct cycle_s{
     listening_t *listening;
 };
 
-typedef struct cycle_s cycle_t;
+// typedef struct cycle_s cycle_t;
 
 struct connection_s{
     void *data;

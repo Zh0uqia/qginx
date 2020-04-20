@@ -18,7 +18,7 @@ MAIN = webserver
 .PHONY: depend clean 
 
 $(MAIN): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) ./fastcgi/fcgi.c -o $(MAIN) $(OBJS) -lpthread
+	$(CXX) $(CXXFLAGS) $(INCLUDES) ../fastcgi/fcgi.c -o $(MAIN) $(OBJS) -lpthread
 
 .c.o:
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@

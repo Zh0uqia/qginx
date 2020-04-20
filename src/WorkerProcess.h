@@ -60,8 +60,8 @@ private:
 
     Handler handler;
 
-    event_t *cycleReadEvent, *cycleWriteEvent, *rev, *wev;
-    connection_t *cycleConnection, *c;
+    event_t *cycleReadEvent, *cycleWriteEvent;
+    connection_t *cycleConnection, *conn;
     listening_t *ls;
 
 };

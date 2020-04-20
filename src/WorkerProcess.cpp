@@ -26,9 +26,10 @@ WorkerProcess::~WorkerProcess(){
     free(cycleReadEvent);
     free(cycleWriteEvent);
     free(cycleConnection);
-    
-    rev = NULL;
-    wev = NULL;
+
+    cycleReadEvent = NULL;
+    cycleWriteEvent = NULL;
+    cycleConnection = NULL;
 }
 
 void WorkerProcess::workerProcessCycle(void *data, cycle_t* cycle, struct mt* shmMutex){
@@ -53,6 +54,8 @@ void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
     // initialize free connections linked list 
     int i = MAX_CONNECTIONS;
     connection_t *next, *c;
+    event_t *rev, *wev;
+
     next = NULL;
     c = cycle->connection;
 
@@ -70,21 +73,20 @@ void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
     cycle->free_connections_n = MAX_CONNECTIONS;
 
     // initialize conncection, read and write events
-    c = getConnection(cycle, ls->fd); // get a free connection 
-    c->listening = ls;
-    ls->connection = c;
+    conn = getConnection(cycle, ls->fd); // get a free connection 
+    conn->listening = ls;
+    ls->connection = conn;
 
-    rev = c->read;
+    rev = conn->read;
     rev->accept = 1;
     rev->active = 0;
 
     auto acceptHandler = std::bind(&Handler::acceptEventHandler, \
                             &handler, std::placeholders::_1, \
-                            std::placeholders::_2);
+                            std::placeholders::_2, std::placeholders::_3);
     rev->handl = acceptHandler;
 
-    wev = c->write;
-    wev->active = 1;
+    wev = conn->write;
 }
 
 connection_t* WorkerProcess::getConnection(cycle_t* cycle, int sFD){
@@ -148,7 +150,7 @@ int WorkerProcess::trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmM
     
     // if did not get the lock, but hold the lock in last round, then unlock it
     if (heldLock == 1){
-        if (epl.epollDeleteEvent(epollFD, c->read, READ_EVENT, DISABLE_EVENT) == 0){
+        if (epl.epollDeleteEvent(epollFD, conn->read, READ_EVENT, DISABLE_EVENT) == 0){
             std::perror("Deleting the accept event");
             return 0;
         }
@@ -160,7 +162,7 @@ int WorkerProcess::trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmM
 
 int WorkerProcess::enableAcceptEvent(cycle_t *cycle){
     // add accept event to epoll 
-    if (epl.epollAddEvent(epollFD, c->read, READ_EVENT, 0) == 0){
+    if (epl.epollAddEvent(epollFD, conn->read, READ_EVENT, 0) == 0){
         std::perror("Adding the accept event");
         return 0;
     }
@@ -213,6 +215,6 @@ void WorkerProcess::processPostedEvent(cycle_t* cycle, \
     while (!arr.empty()){
         cur = arr.front();
         arr.pop();
-        cur->handl(cur, epollFD);
+        cur->handl(cycle, cur, epollFD);
     }
 }

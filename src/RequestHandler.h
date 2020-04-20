@@ -1,6 +1,9 @@
 #pragma once
 #include <conf.h>
 #include <unordered_set>
+#include <Core.h>
+#include <unistd.h>
+// #include <Dispatcher.h>
 
 enum ProcessState{
     STATE_STATUSLINE = 1,
@@ -51,8 +54,9 @@ public:
     std::string getQueryString();
     std::string getBody();
 
+    void httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD);
     void processRequest(std::string);
-
+ 
 private:
     StatusState processStatus(std::string);
     HeaderState processHeader(std::string);

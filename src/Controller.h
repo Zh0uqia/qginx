@@ -1,6 +1,6 @@
 #pragma once
 #include <conf.h>
-#include <./fastcgi/fcgi.h>
+#include <../fastcgi/fcgi.h>
 #include <bits/stdc++.h>
 #include <sys/mman.h>
 #include <sys/stat.h>

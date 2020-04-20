@@ -5,8 +5,9 @@
 
 struct event_s;
 typedef struct event_s event_t;
+typedef struct cycle_s cycle_t;
 
-typedef std::function<void(event_t* ev, int epollFD)> EventHandlerFunc;
+typedef std::function<void(cycle_t* cycle, event_t* ev, int epollFD)> EventHandlerFunc;
     
 struct event_s{
     void *data;

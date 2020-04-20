@@ -15,13 +15,19 @@
 #include <netinet/in.h>      // For sockaddr_in
 #include <fcntl.h>
 
+#include <RequestHandler.h>
+#include <Epoll.h>
+
 class Handler
 {
 public:
-   int setNonBlock(int fd);
-   void acceptEventHandler(event_t* ev, int epollFD);
-
+    int setNonBlock(int fd);
+    void acceptEventHandler(cycle_t *cycle, event_t* ev, int epollFD);
+    connection_t* getConnection(cycle_t* cycle, int sFD);
+    void httpInitConnection(connection_t *c, int epollFD);
+ 
 private:
-
+    RequestHandler httpHandler;
+    Epoll epl;
 };
 

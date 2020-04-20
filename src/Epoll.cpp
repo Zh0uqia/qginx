@@ -34,7 +34,7 @@ int Epoll::epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags){
     if (e->active == 1) {
         op = EPOLL_CTL_MOD;
         events |= prev;
-    } else if (e->active < 0) {
+    } else {
         op = EPOLL_CTL_ADD; // accept event 
     }
     
@@ -82,7 +82,7 @@ int Epoll::epollDeleteEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags
         ee.events = prev | (uint32_t) flags;
         ee.data.ptr = c;
 
-    } else if (e->active < 0) {
+    } else {
         op = EPOLL_CTL_DEL;
         ee.events = 0;
         ee.data.ptr = NULL;

@@ -33,6 +33,43 @@ std::string RequestHandler::getBody(){
     return RequestHandler::body_;
 }
 
+void RequestHandler::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD){
+    connection_t *c;
+    int n;
+    char readBuffer[BUFFERLENGTH];
+
+    memset(readBuffer, 0, sizeof(readBuffer));
+    c = (connection_t*) ev->data;
+    n = read(c->fd, readBuffer, BUFFERLENGTH); // read request from the socket 
+    std::string cmd(readBuffer);
+
+    processRequest(cmd);
+    if (state_ == STATE_FINISH){
+        Dispatcher dsp;
+        char* response;
+        response = dsp.dispatch(requestHandler);
+        // dbPrint(response << std::endl);
+
+        char send_buff[10000];
+        std::string header_buff;
+        header_buff = "HTTP/1.1 " + std::to_string(220) + " OK" + "\r\n";
+        header_buff += "Content-Type: text/html\r\n";
+        header_buff += "Connection: Close\r\n";
+        header_buff += "Content-Length: " + std::to_string(strlen(response)) + "\r\n";
+        header_buff += "Server: Qianying Zhou's Web Server\r\n";
+        header_buff += "\r\n";
+
+        sprintf(send_buff, "%s", header_buff.c_str());
+        
+        write(c->fd, send_buff, strlen(send_buff));
+
+        write(c->fd, response, strlen(response));
+    }else{
+        dbPrint("-----------STATE ERROR ------------" << std::endl);                    
+    }
+}
+
+
 StatusState RequestHandler::processStatus(std::string cmd){
     size_t pos = nowReadPos_;
     size_t nxt;
