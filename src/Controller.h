@@ -4,7 +4,6 @@
 #include <bits/stdc++.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-#include <Response.h>
 #include <RequestHandler.h>
 #include <fcntl.h>
 #include <sys/socket.h>
@@ -28,7 +27,7 @@ private:
 		sendStartRequestRecord(c); //start request body is the first request body sent  
         
         // send "name-value" pairs 
-        if (method == "GET"){
+        if (strcmp(method, "GET") == 0){
 		    sendParams(c, const_cast<char *>("SCRIPT_FILENAME"), file_path);
 		    sendParams(c, const_cast<char *>("REQUEST_METHOD"), method);
             sendParams(c, const_cast<char *>("CONTENT_LENGTH"), const_cast<char *>("0"));
@@ -40,7 +39,7 @@ private:
             sendEndRequestRecord(c);// empty; same type as ENV_PARAM 
         }
 
-        if (method == "POST"){
+        if (strcmp(method, "POST") == 0){
             size_t content_length = strlen(content);
             std::string size = std::to_string(content_length);
             char cl[size.length()+1];
@@ -73,7 +72,6 @@ private:
     }
 
     char* responseFun(){
-        Response resp;
         char* rp;
 		rp = readFromPhp(c);
 
@@ -91,7 +89,7 @@ private:
 		final_html[i] = '\0';
 
         char* response;
-        response = resp.generateResponse(final_html);
+        response = final_html;
 
         FastCgi_finit(c); // close the fastcgi socket
 

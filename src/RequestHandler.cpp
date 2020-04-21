@@ -33,6 +33,7 @@ std::string RequestHandler::getBody(){
     return RequestHandler::body_;
 }
 
+/*
 void RequestHandler::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD){
     connection_t *c;
     int n;
@@ -68,7 +69,7 @@ void RequestHandler::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epo
         dbPrint("-----------STATE ERROR ------------" << std::endl);                    
     }
 }
-
+*/ 
 
 StatusState RequestHandler::processStatus(std::string cmd){
     size_t pos = nowReadPos_;
@@ -144,12 +145,12 @@ StatusState RequestHandler::processStatus(std::string cmd){
     }else{
         httpVersion_ = HTTP_10;
     }
-
+/*
     dbPrint("uri is \n" << uri_ << std::endl);
     dbPrint("query string is \n" << queryString_ << std::endl);
     dbPrint("method is \n" << method_ << std::endl);
     dbPrint("status line is \n" << statusLine << std::endl);
-
+*/ 
     return STATUS_FINISH;
 }
 
@@ -162,14 +163,14 @@ HeaderState RequestHandler::processHeader(std::string cmd){
     std::regex b("[\r][\n][\r][\n]");
 
     if (std::regex_search(cmd, m, b)){
-        dbPrint("empty line found" << std::endl);
+        // dbPrint("empty line found" << std::endl);
     }else{
         return HEADER_ERROR;
     }
 
     nowReadPos_ = m.position(m.size()-1) + 4;
 
-    dbPrint("Header is \n" << header << std::endl);
+    // dbPrint("Header is \n" << header << std::endl);
 
     return HEADER_FINISH;
 }
@@ -178,7 +179,7 @@ BodyState RequestHandler::processBody(std::string cmd){
     if (nowReadPos_ < cmd.length()){
         body_ = cmd.substr(nowReadPos_);
 
-        dbPrint("body is \n" << cmd.substr(nowReadPos_) << std::endl); 
+        // dbPrint("body is \n" << cmd.substr(nowReadPos_) << std::endl); 
     }
     return BODY_FINISH;
 }
@@ -199,7 +200,7 @@ void RequestHandler::processRequest(std::string cmd){
             state_ = STATE_HEADER;
     }
 
-    dbPrint("state after statusline is: " << state_ << std::endl);
+    // dbPrint("state after statusline is: " << state_ << std::endl);
 
 
     if (state_ == STATE_HEADER){
@@ -211,7 +212,7 @@ void RequestHandler::processRequest(std::string cmd){
             state_ = STATE_BODY;
     }
 
-    dbPrint("state after header is: " << state_ << std::endl);
+    // dbPrint("state after header is: " << state_ << std::endl);
 
     if (state_ == STATE_BODY){
         BodyState flag = processBody(cmd);
@@ -222,7 +223,7 @@ void RequestHandler::processRequest(std::string cmd){
             state_ = STATE_FINISH;
     }
     
-    dbPrint("state after body is: " << state_ << std::endl);
+    // dbPrint("state after body is: " << state_ << std::endl);
 
     return;
 }

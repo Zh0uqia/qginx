@@ -50,19 +50,24 @@ void Handler::acceptEventHandler(cycle_t* cycle, event_t* ev, int epollFD){
     int addrlen = sizeof(addr);
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(8080);
+    addr.sin_port = htons(PORT);
 
-    for (int i=0; i<5; i++){
+    int i=0;
+
+    // for (int i=0; i<5; i++){
+    for ( ;; ){
         int acceptFD = accept(listenFD, (struct sockaddr *)&addr, \
                               (socklen_t*)&addrlen);
         if (acceptFD == -1){
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                dbPrint("Accepted " << i << " requests" << std::endl);
                 break;
             }else{
                 std::perror("Accept error");
                 return;
             }
         }
+        i++;
 
         setNonBlock(acceptFD);
         
@@ -78,8 +83,8 @@ void Handler::httpInitConnection(connection_t *c, int epollFD){
     rev = c->read;
 
     // change handler of read and write events 
-    auto waitRequestHandler = std::bind(&RequestHandler::httpWaitRequestHandler, \
-                            &httpHandler, std::placeholders::_1, \
+    auto waitRequestHandler = std::bind(&Response::httpWaitRequestHandler, \
+                            &rp, std::placeholders::_1, \
                             std::placeholders::_2, std::placeholders::_3);
     
     rev->handl = waitRequestHandler;

@@ -39,6 +39,8 @@ void MasterProcess::startWorkerProcess(cycle_t* cycle){
                 dbPrint("Child process existed abnormally." << std::endl);
             }
         }
+
+        close(cycle->listening->fd);
     }
     return;
 }

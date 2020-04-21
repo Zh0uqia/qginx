@@ -12,6 +12,7 @@
 #include <Core.h>
 #include <Handler.h>
 #include <queue>
+#include <signal.h>
 
 #define POST_EVENT 2
 
@@ -44,7 +45,9 @@ public:
     int trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmMutex);
     int enableAcceptEvent(cycle_t *cycle);
     void getEventQueue(cycle_t *cycle);
-    void processPostedEvent(cycle_t* cycle, std::queue<event_t*> arr);
+    void processPostedEvent(cycle_t* cycle, std::queue<event_t*>&);
+    
+    static void handleSigpipe(int signum);
  
 private:
     Epoll epl;

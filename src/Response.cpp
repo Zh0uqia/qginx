@@ -2,25 +2,58 @@
 #include <Response.h>
 #include <bits/stdc++.h>
 
-char* Response::generateResponse(char* content){
-    // convert content to string
-    /*
-    std::string res;
+void Response::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD){
+    connection_t *c;
+    char readBuffer[BUFFERLENGTH];
 
-    
-    std::string res = status_line + date + server +\
-          length + std::to_string(sizeof(content)) + "\r\n" +\
-          type + "\r\n" + content;
-    
-    std::string res = "HTTP/1.0 200 OK\r\nContent-Length: 11\r\nContent-Type: text/html; charset=UTF-8\r\n\r\nHello World\r\n";
-    std::cout << res << std::endl;
-    
+    memset(readBuffer, 0, sizeof(readBuffer));
+    c = (connection_t*) ev->data;
+    read(c->fd, readBuffer, BUFFERLENGTH); // read request from the socket 
+    std::string cmd(readBuffer);
 
-    char* response = (char*) malloc(10000 * sizeof(char));
-    strcpy(response, res.c_str());
+    RequestHandler requestHandler;
+    requestHandler.processRequest(cmd);
+    
+    ProcessState ps = requestHandler.getState();
+    
+    if (ps == STATE_FINISH){
+        Dispatcher dsp;
+        char* response;
+        response = dsp.dispatch(requestHandler);
+        dbPrint(response << std::endl);
 
-    return response;
-    */ 
-    return content;
+        char send_buff[10000];
+        std::string header_buff;
+        header_buff = "HTTP/1.1 " + std::to_string(220) + " OK" + "\r\n";
+        header_buff += "Content-Type: text/html\r\n";
+        header_buff += "Connection: Close\r\n";
+        header_buff += "Content-Length: " + std::to_string(strlen(response)) + "\r\n";
+        header_buff += "Server: Qianying Zhou's Web Server\r\n";
+        header_buff += "\r\n";
+
+        sprintf(send_buff, "%s", header_buff.c_str());
+        
+        write(c->fd, send_buff, strlen(send_buff));
+
+        write(c->fd, response, strlen(response));
+    }else{
+        dbPrint("-----------STATE ERROR ------------" << std::endl);                    
+    }
+    
+    freeConnection(cycle, c, epollFD);
 }
 
+void Response::freeConnection(cycle_t *cycle, connection_t *c, int epollFD){
+    if (epl.epollDeleteEvent(epollFD, c->read, READ_EVENT, DISABLE_EVENT) == 0)
+        std::perror("Deleting read event");
+
+    close(c->fd);
+    // put back to free connections
+    c->data = cycle->free_connections;
+    cycle->free_connections = c;
+    cycle->free_connections_n++;
+
+    // reset c
+    c->fd = 0;
+        
+}

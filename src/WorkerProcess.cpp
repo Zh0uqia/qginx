@@ -36,8 +36,8 @@ void WorkerProcess::workerProcessCycle(void *data, cycle_t* cycle, struct mt* sh
     dbPrint("Worker process cycle of [process] " << getpid() << std::endl);
     workerProcessInit(data, cycle);
             
-    for (int j=0; j<100; j++){
-    // for ( ;; ){
+    // for (int j=0; j<100; j++){
+    for ( ;; ){
         processEvents(data, cycle, shmMutex);
                         
     }
@@ -113,8 +113,13 @@ connection_t* WorkerProcess::getConnection(cycle_t* cycle, int sFD){
     return c;
 }
 
+void WorkerProcess::handleSigpipe(int signum){
+    dbPrint("Caught signal SIGPIPE " << signum << std::endl);
+}
+
 void WorkerProcess::processEvents(void *data, cycle_t* cycle, struct mt* shmMutex){
-   //  uintptr_t flags; // if POST_EVENT or not 
+    //  uintptr_t flags; // if POST_EVENT or not 
+    signal(SIGPIPE, handleSigpipe);
 
     if (trylockAcceptMutex(data, cycle, shmMutex) == 0){
         return;
@@ -173,7 +178,7 @@ int WorkerProcess::enableAcceptEvent(cycle_t *cycle){
 void WorkerProcess::getEventQueue(cycle_t *cycle){
     struct epoll_event ee;
     event_t *rev, *wev;
-    uint32_t revent, wevent;
+    uint32_t revent;
     connection_t *c;
     
     struct epoll_event* eventList = (struct epoll_event*) calloc(MAX_EPOLLFD, \ 
@@ -209,7 +214,7 @@ void WorkerProcess::getEventQueue(cycle_t *cycle){
 }
 
 void WorkerProcess::processPostedEvent(cycle_t* cycle, \
-                                       std::queue<event_t*> arr){
+                                       std::queue<event_t*>& arr){
     event_t* cur;
 
     while (!arr.empty()){

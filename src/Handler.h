@@ -15,7 +15,7 @@
 #include <netinet/in.h>      // For sockaddr_in
 #include <fcntl.h>
 
-#include <RequestHandler.h>
+#include <Response.h>
 #include <Epoll.h>
 
 class Handler
@@ -27,7 +27,7 @@ public:
     void httpInitConnection(connection_t *c, int epollFD);
  
 private:
-    RequestHandler httpHandler;
+    Response rp;
     Epoll epl;
 };
 

@@ -6,7 +6,7 @@ char* Controller::cmdGet(RequestHandler r){
     char* res;
 
     std::string fn = r.getUri();// relative path 
-    fn = "/mnt/raid/webserver/" + fn; // absolute path 
+    fn = "/mnt/raid/simple-web-server/src/" + fn; // absolute path 
     char *file_name = &fn[0];
     
     /* interact with php */
@@ -80,8 +80,7 @@ char* Controller::openFile(std::string fn){
     char* content = (char*) malloc(10000 * sizeof(char));
     strcpy(content, fileBuf.c_str());
 
-    Response resp;
-    res = resp.generateResponse(content);
+    res = content;
     
     return res;
 }
