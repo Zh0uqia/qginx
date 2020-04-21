@@ -2,8 +2,8 @@
 #include <Controller.h>
 #include <boost/algorithm/string.hpp>
 
-char* Controller::cmdGet(RequestHandler r){
-    char* res;
+std::string Controller::cmdGet(RequestHandler r){
+    std::string res;
 
     std::string fn = r.getUri();// relative path 
     fn = "/mnt/raid/simple-web-server/src/" + fn; // absolute path 
@@ -31,8 +31,8 @@ char* Controller::cmdGet(RequestHandler r){
     return res;
 }
 
-char* Controller::cmdPost(RequestHandler r){
-    char* res;
+std::string Controller::cmdPost(RequestHandler r){
+    std::string res;
 
     std::string fn = r.getUri();
     fn = "/mnt/raid/webserver/" + fn;
@@ -53,8 +53,8 @@ char* Controller::cmdPost(RequestHandler r){
     return res;
 }
 
-char* Controller::openFile(std::string fn){
-    char* res;
+std::string Controller::openFile(std::string fn){
+    std::string res;
     struct stat sbuf;
     std::string fileBuf;
     stat(fn.c_str(), &sbuf);
@@ -77,10 +77,7 @@ char* Controller::openFile(std::string fn){
     fileBuf += std::string(src_addr, src_addr + sbuf.st_size);
     munmap(mmapRet, sbuf.st_size);
     
-    char* content = (char*) malloc(10000 * sizeof(char));
-    strcpy(content, fileBuf.c_str());
-
-    res = content;
+    res = fileBuf;
     
     return res;
 }

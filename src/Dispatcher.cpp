@@ -1,7 +1,7 @@
 #include <iostream>
 #include <Dispatcher.h>
 
-char* Dispatcher::dispatch(RequestHandler rhandl){
+std::string Dispatcher::dispatch(RequestHandler rhandl){
     Controller ctl;
 
     MethodState cmd = rhandl.getMethod();

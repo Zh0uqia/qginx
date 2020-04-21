@@ -6,7 +6,7 @@
 class Dispatcher
 {
 public:
-    char* dispatch(RequestHandler rhandl);
+    std::string dispatch(RequestHandler rhandl);
 private:
 
 };

@@ -18,24 +18,27 @@ void Response::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD){
     
     if (ps == STATE_FINISH){
         Dispatcher dsp;
-        char* response;
+        std::string response;
         response = dsp.dispatch(requestHandler);
         dbPrint(response << std::endl);
 
         char send_buff[10000];
+        char content_buff[10000];
+
         std::string header_buff;
         header_buff = "HTTP/1.1 " + std::to_string(220) + " OK" + "\r\n";
         header_buff += "Content-Type: text/html\r\n";
         header_buff += "Connection: Close\r\n";
-        header_buff += "Content-Length: " + std::to_string(strlen(response)) + "\r\n";
+        header_buff += "Content-Length: " + std::to_string(response.size()) + "\r\n";
         header_buff += "Server: Qianying Zhou's Web Server\r\n";
         header_buff += "\r\n";
 
         sprintf(send_buff, "%s", header_buff.c_str());
-        
+        sprintf(content_buff, "%s", response.c_str());
+
         write(c->fd, send_buff, strlen(send_buff));
 
-        write(c->fd, response, strlen(response));
+        write(c->fd, content_buff, strlen(content_buff));
     }else{
         dbPrint("-----------STATE ERROR ------------" << std::endl);                    
     }

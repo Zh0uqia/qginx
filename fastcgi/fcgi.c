@@ -116,13 +116,13 @@ int makeNameValueBody(char *name, int nameLen,
     }
 
     /* 将 name 中的字节逐一加入body中的buffer中 */
-    for (int i = 0; i < strlen(name); i++)
+    for (unsigned int i = 0; i < strlen(name); i++)
     {
         *bodyBuffPtr++ = name[i];
     }
 
     /* 将 value 中的值逐一加入body中的buffer中 */
-    for (int i = 0; i < strlen(value); i++)
+    for (unsigned int i = 0; i < strlen(value); i++)
     {
         *bodyBuffPtr++ = value[i];
     }

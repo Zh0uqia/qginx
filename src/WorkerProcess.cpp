@@ -54,7 +54,7 @@ void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
     // initialize free connections linked list 
     int i = MAX_CONNECTIONS;
     connection_t *next, *c;
-    event_t *rev, *wev;
+    event_t *rev; //*wev;
 
     next = NULL;
     c = cycle->connection;
@@ -86,7 +86,7 @@ void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
                             std::placeholders::_2, std::placeholders::_3);
     rev->handl = acceptHandler;
 
-    wev = conn->write;
+    // wev = conn->write;
 }
 
 connection_t* WorkerProcess::getConnection(cycle_t* cycle, int sFD){
@@ -181,8 +181,8 @@ void WorkerProcess::getEventQueue(cycle_t *cycle){
     uint32_t revent;
     connection_t *c;
     
-    struct epoll_event* eventList = (struct epoll_event*) calloc(MAX_EPOLLFD, \ 
-                                                                 sizeof(event));
+    struct epoll_event* eventList = (struct epoll_event*) \
+                                    calloc(MAX_EPOLLFD, sizeof(event));
     
     int n = epoll_wait(epollFD, eventList, MAX_EPOLLFD, EPOLL_TIMEOUT);
 

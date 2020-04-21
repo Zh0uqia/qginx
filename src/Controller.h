@@ -11,13 +11,13 @@
 class Controller
 {
 public:
-    char* cmdGet(RequestHandler);
-    char* cmdPost(RequestHandler);
+    std::string cmdGet(RequestHandler);
+    std::string cmdPost(RequestHandler);
     bool isPhp(std::string);
     bool isGetDynamic(RequestHandler);
 
 private:
-    char* openFile(std::string);
+    std::string openFile(std::string);
 
     void FastCgiFun(char *method, char *file_path, char *query_string, char *content)
 	{
@@ -71,14 +71,14 @@ private:
 
     }
 
-    char* responseFun(){
+    std::string responseFun(){
         char* rp;
 		rp = readFromPhp(c);
 
         char* html = findStartHtml(rp);
 
         auto htmlen = strlen(rp) - (html - rp);
-		int i = 0;
+		unsigned int i;
         char final_html[20000];
 		memset(final_html, '\0', 20000);
 		
@@ -88,12 +88,9 @@ private:
 		}
 		final_html[i] = '\0';
 
-        char* response;
-        response = final_html;
-
         FastCgi_finit(c); // close the fastcgi socket
 
-        return response;
+        return std::string(final_html);
     }
 
     FastCgi_t fast_cgi; // fast cgi object 
