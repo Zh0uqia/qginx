@@ -9,6 +9,7 @@ This is a high performance web server. The purpose of this project is to learn a
 
 ## Benchmarking
 1. Result of Version 0 (single-processing web server) using *wrk*
+
 Running 10s test @ http://127.0.0.1:8080\
 20 threads and 600 connections\
 Thread Stats   Avg      Stdev     Max   +/- Stdev\
