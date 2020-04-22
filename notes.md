@@ -264,7 +264,7 @@ In the accept event handler *ngx_event_accept()*, every time a new connection is
 ngx_accept_disabled = ngx_cycle->connection_n / 8
                               - ngx_cycle->free_connection_n;
 ```
-When *free_connection_n*, this value is increasing, and when *free_connection_n = 7/8 * connection_n*, this value will be larger than 0.
+When *free_connection_n* increases, this value is increasing, and when *free_connection_n = 7/8 * connection_n*, this value will be larger than 0.
 
 The second way Nginx uses for load balancing is that, if a process did not get the lock, it will not be blocked until notification comes from epoll because that might cause it to wait forever. It will set the timeout value of *epoll_wait()* to be *ngx_accept_mutex_delay*.
 ```
