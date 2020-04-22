@@ -44,7 +44,7 @@ public:
 
     int trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmMutex);
     int enableAcceptEvent(cycle_t *cycle);
-    void getEventQueue(cycle_t *cycle);
+    void getEventQueue(cycle_t *cycle, int timer, uintptr_t flags);
     void processPostedEvent(cycle_t* cycle, std::queue<event_t*>&);
     
     static void handleSigpipe(int signum);

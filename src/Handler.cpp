@@ -69,6 +69,8 @@ void Handler::acceptEventHandler(cycle_t* cycle, event_t* ev, int epollFD){
         }
         i++;
 
+        cycle->accept_disabled = cycle->total_connection/8 - cycle->free_connections_n; 
+        
         setNonBlock(acceptFD);
         
         conn = getConnection(cycle, acceptFD); // get a free connection; bind acceptFD with it 

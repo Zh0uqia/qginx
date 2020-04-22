@@ -12,9 +12,17 @@
 #endif
  
 #define PORT 8080
+
 #define BUFFERLENGTH 1024
+
 #define WORKER_NUMBER 8
-#define MAX_PROCESSES 16
+
 #define MAX_EPOLLFD 1024
+
 #define EPOLL_TIMEOUT -1
+
+#define MUTEX_DELAY 500
+
 #define MAX_CONNECTIONS 1024
+
+

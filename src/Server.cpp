@@ -111,7 +111,6 @@ void Server::handNewConn(){
         memset(readBuffer_, 0, sizeof(readBuffer_));
 
         read( newSocket_ , readBuffer_, 1024); 
-        dbPrint("valread = "<< valread << std::endl); 
         dbPrint(readBuffer_ << std::endl);
         
         std::string cmd(readBuffer_);

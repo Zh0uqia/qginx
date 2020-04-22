@@ -72,6 +72,7 @@ void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
     cycle->free_connections = next;
     cycle->free_connections_n = MAX_CONNECTIONS;
 
+    cycle->total_connection = MAX_CONNECTIONS;
     // initialize conncection, read and write events
     conn = getConnection(cycle, ls->fd); // get a free connection 
     conn->listening = ls;
@@ -118,23 +119,37 @@ void WorkerProcess::handleSigpipe(int signum){
 }
 
 void WorkerProcess::processEvents(void *data, cycle_t* cycle, struct mt* shmMutex){
-    //  uintptr_t flags; // if POST_EVENT or not 
+    uintptr_t flags; // if POST_EVENT or not 
+    int timer; // timeout for epoll_wait()
+
     signal(SIGPIPE, handleSigpipe);
 
-    if (trylockAcceptMutex(data, cycle, shmMutex) == 0){
-        return;
-    }
-/*
-    if (heldLock == 1)
-        flags = POST_EVENT;
-*/  
-    getEventQueue(cycle);
+    timer = EPOLL_TIMEOUT;
+    flags = 0;
+
+    if (cycle->accept_disabled > 0){
+        cycle->accept_disabled--;
+    }else{
+
+        if (trylockAcceptMutex(data, cycle, shmMutex) == 0){
+            return;
+        }
+    
+        if (heldLock == 1)
+            flags = POST_EVENT;
+        else{
+            if (timer == EPOLL_TIMEOUT)
+                timer = MUTEX_DELAY;
+        }
+
+    getEventQueue(cycle, timer, flags);
     processPostedEvent(cycle, postedAcceptEvents);
 
     if (heldLock == 1)
         pthread_mutex_unlock(&shmMutex->mutex);
 
     processPostedEvent(cycle, postedDelayEvents);
+    }
 }
 
 int WorkerProcess::trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmMutex){
@@ -175,7 +190,7 @@ int WorkerProcess::enableAcceptEvent(cycle_t *cycle){
     return 1;
 }
 
-void WorkerProcess::getEventQueue(cycle_t *cycle){
+void WorkerProcess::getEventQueue(cycle_t *cycle, int timer, uintptr_t flags){
     struct epoll_event ee;
     event_t *rev, *wev;
     uint32_t revent;
@@ -184,7 +199,7 @@ void WorkerProcess::getEventQueue(cycle_t *cycle){
     struct epoll_event* eventList = (struct epoll_event*) \
                                     calloc(MAX_EPOLLFD, sizeof(event));
     
-    int n = epoll_wait(epollFD, eventList, MAX_EPOLLFD, EPOLL_TIMEOUT);
+    int n = epoll_wait(epollFD, eventList, MAX_EPOLLFD, timer);
 
     if (n == 0)
         dbPrint("No event is in the event wait list" << std::endl);
@@ -201,13 +216,18 @@ void WorkerProcess::getEventQueue(cycle_t *cycle){
         if ((revent & EPOLLIN) && rev->active) {
             if (rev->accept == 1)
                 postedAcceptEvents.push(rev);
-            else
+            else if (flags & POST_EVENT)
                 postedDelayEvents.push(rev);
+            else
+                rev->handl(cycle, rev, epollFD);
         }
         
         wev = c->write;
         if ((revent & EPOLLOUT) && wev->active) {
-            postedDelayEvents.push(wev);
+            if (flags & POST_EVENT)
+                postedDelayEvents.push(wev);
+            else
+                wev->handl(cycle, wev, epollFD);
         }
     }
     free(eventList);

@@ -14,13 +14,17 @@ struct listening_s{
 typedef struct listening_s listening_t;
 
 struct cycle_s{
-    connection_t *free_connections;
-    int free_connections_n;
+    int total_connection; // maximum number of connections 
 
-    connection_t *connection;
-    event_t *read_event, *write_event;
+    int accept_disabled; // try to get mutex or not
+
+    connection_t *free_connections; // free connection list 
+    int free_connections_n; // number of free connection 
+
+    connection_t *connection; // connection pool 
+    event_t *read_event, *write_event; // read and write event pool 
     
-    listening_t *listening;
+    listening_t *listening; // listening socket 
 };
 
 // typedef struct cycle_s cycle_t;
