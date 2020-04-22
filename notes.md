@@ -24,6 +24,13 @@ $ x /2000a $rsp
 ```
 *x* stands for *exam*.
 
+```
+// check 10 memory blocks with binary
+x/10x 0x60400000000010
+
+// check 10 memory blocks with instruction
+x/10i 0x60400000000010
+```
 3. If the *.core* file is incomplete, get the code where the program stopped by 
 ```
 $ dmesg | grep a.out
@@ -239,6 +246,34 @@ In *ngx_worker_process_init()*, it calls the *init_process()* of each module. Th
 #### Process events
 The event processing loop has been summarized above.
 
+#### Load balancing
+Every worker process has its own connection pool. In *conf.h*, the maximum number of connections *connection_n* is set. The maximum number of connections Nginx can handle as a server is *worker_process * connection_n*. 
 
+If a worker process is handling connections more than *7 * connection_n/8*, then it will not try to get the lock.
+```
+if (ngx_accept_disabled > 0) {
+            ngx_accept_disabled--;
+
+} else {
+    if (ngx_trylock_accept_mutex(cycle) == NGX_ERROR) {
+        return;
+}
+```
+In the accept event handler *ngx_event_accept()*, every time a new connection is got from the free connection pool, the *ngx_accept_disabled* is reset
+```
+ngx_accept_disabled = ngx_cycle->connection_n / 8
+                              - ngx_cycle->free_connection_n;
+```
+When *free_connection_n*, this value is increasing, and when *free_connection_n = 7/8 * connection_n*, this value will be larger than 0.
+
+The second way Nginx uses for load balancing is that, if a process did not get the lock, it will not be blocked until notification comes from epoll because that might cause it to wait forever. It will set the timeout value of *epoll_wait()* to be *ngx_accept_mutex_delay*.
+```
+else {
+    if (timer == NGX_TIMER_INFINITE
+                    || timer > ngx_accept_mutex_delay)
+    {
+        timer = ngx_accept_mutex_delay;
+    }
+```
 
 
