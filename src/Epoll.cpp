@@ -42,17 +42,11 @@ int Epoll::epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags){
     ee.data.ptr = c;
     // ee.data.fd = c->fd; // fatal error! epoll_data is a union, not a struct 
 
-    dbPrint("op code is: "<< EPOLL_CTL_ADD << " " << EPOLL_CTL_MOD << " " << EPOLL_CTL_DEL << std::endl);
-    dbPrint("Prepare to add event: fd " << c->fd << " op " << op << " event " \
-            << ee.events << std::endl);
-
     if (epoll_ctl(ep, op, c->fd, &ee) == -1) {
         return 0;
 
     }
     
-    dbPrint("Epoll add event success: fd " << c->fd << " op " << op << " event " \
-            << ee.events << std::endl);
     ev->active = 1;
 
     return 1;
@@ -87,16 +81,11 @@ int Epoll::epollDeleteEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags
         ee.events = 0;
         ee.data.ptr = NULL;
     }
-    
-    dbPrint("Prepare to delete event: fd " << c->fd << " op " << op << " event " \
-            << ee.events << std::endl);
 
     if (epoll_ctl(ep, op, c->fd, &ee) == -1){
         return 0;
     }
     
-    dbPrint("Epoll delete event success: fd " << c->fd << " op " << op << " event " \
-            << ee.events << std::endl);
 
     ev->active = 0;
         

@@ -15,7 +15,6 @@ void MasterProcess::startWorkerProcess(cycle_t* cycle){
         Process pcs;
         WorkerProcess workerProcess((void *)(intptr_t) i, cycle);
 
-        dbPrint("begin process " << i << std::endl);
         auto cb = std::bind(&WorkerProcess::workerProcessCycle, \
                             &workerProcess, std::placeholders::_1, \
                             std::placeholders::_2, std::placeholders::_3);
@@ -34,9 +33,9 @@ void MasterProcess::startWorkerProcess(cycle_t* cycle){
         int childid;
         while ((childid = wait(&status)) > 0){
             if (WIFEXITED(status)){
-                dbPrint("Child process " << childid << " existed with code " << WEXITSTATUS(status) << std::endl);
+                std::cout << "Child process " << childid << " existed with code " << WEXITSTATUS(status) << std::endl;
             }else{
-                dbPrint("Child process existed abnormally." << std::endl);
+                std::cout << "Child process existed abnormally." << std::endl;
             }
         }
 

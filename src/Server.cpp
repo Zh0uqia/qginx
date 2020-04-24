@@ -12,13 +12,12 @@ Server::~Server(){
 }
 
 void Server::start(int p){
-    dbPrint("started" << std::endl);
     started_ = true;
     port_ = p; 
 }
 
 void Server::handleSigpipe(int signum){
-    dbPrint("Caught signal SIGPIPE " << signum << std::endl);
+    std::cout << "Caught signal SIGPIPE " << signum << std::endl;
 }
 
 int Server::setNonBlocking(){
@@ -39,7 +38,6 @@ void Server::serverInit(){
         std::perror("socket failed");
         exit(EXIT_FAILURE);
     }
-    dbPrint("socket created" << std::endl);
     
     // Forcefully attaching socket to the port 8080
     if (setsockopt(serverFD, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
@@ -48,7 +46,6 @@ void Server::serverInit(){
         std::perror("set sockopt failed");
         exit(EXIT_FAILURE);
     }
-    dbPrint("socket opt set" << std::endl);
 
     address_.sin_family = AF_INET;
     address_.sin_addr.s_addr = INADDR_ANY;
@@ -61,14 +58,12 @@ void Server::serverInit(){
         std::perror("bind failed");
         exit(EXIT_FAILURE);
     }
-    dbPrint("socket binded" << std::endl);
 
     if (listen(serverFD, 3) < 0)
     {
         std::perror("listen failed");
         exit(EXIT_FAILURE);
     }
-    dbPrint("socket listening" << std::endl);
 
     if (setNonBlocking() == -1){
         std::perror("set non-blocking failed");
@@ -111,7 +106,6 @@ void Server::handNewConn(){
         memset(readBuffer_, 0, sizeof(readBuffer_));
 
         read( newSocket_ , readBuffer_, 1024); 
-        dbPrint(readBuffer_ << std::endl);
         
         std::string cmd(readBuffer_);
 
@@ -121,7 +115,6 @@ void Server::handNewConn(){
         ProcessState ps = requestHandler.getState();
         
         if (ps == STATE_FINISH){
-            dbPrint("-----------STATE FINISH------------" << std::endl);
             Dispatcher dsp;
             std::string response;
             response = dsp.dispatch(requestHandler);
@@ -144,7 +137,7 @@ void Server::handNewConn(){
 
             write(newSocket_, content_buff, strlen(content_buff));
         }else{
-            dbPrint("-----------STATE ERROR ------------" << std::endl);
+            std::cout << "-----------STATE ERROR ------------" << std::endl;
         }
 
         close(newSocket_);         

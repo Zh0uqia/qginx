@@ -9,13 +9,13 @@
 #define dbPrint(x) std::cout << x;
 #else
 #define dbPrint(x);
-#endif
- 
+#endif 
+
 #define PORT 8080
 
 #define BUFFERLENGTH 1024
 
-#define WORKER_NUMBER 8
+#define WORKER_NUMBER 1
 
 #define MAX_EPOLLFD 1024
 
@@ -23,6 +23,6 @@
 
 #define MUTEX_DELAY 500
 
-#define MAX_CONNECTIONS 1024
+#define MAX_CONNECTIONS 768
 
 

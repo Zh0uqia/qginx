@@ -20,6 +20,7 @@ WorkerProcess::WorkerProcess(void *data, cycle_t* cycle)
     cycleReadEvent = cycle->read_event;
     cycleWriteEvent = cycle->write_event;
     cycleConnection = cycle->connection;
+
 }
 
 WorkerProcess::~WorkerProcess(){
@@ -27,19 +28,21 @@ WorkerProcess::~WorkerProcess(){
     free(cycleWriteEvent);
     free(cycleConnection);
 
+    if (close(epollFD) == -1)
+        std::perror("Closing epoll fd");
+
     cycleReadEvent = NULL;
     cycleWriteEvent = NULL;
     cycleConnection = NULL;
 }
 
 void WorkerProcess::workerProcessCycle(void *data, cycle_t* cycle, struct mt* shmMutex){
-    dbPrint("Worker process cycle of [process] " << getpid() << std::endl);
     workerProcessInit(data, cycle);
             
-    // for (int j=0; j<100; j++){
+    // for (int j=0; j<3; j++){
     for ( ;; ){
         processEvents(data, cycle, shmMutex);
-                        
+        
     }
       
 }
@@ -88,6 +91,7 @@ void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
     rev->handl = acceptHandler;
 
     // wev = conn->write;
+    
 }
 
 connection_t* WorkerProcess::getConnection(cycle_t* cycle, int sFD){
@@ -114,15 +118,19 @@ connection_t* WorkerProcess::getConnection(cycle_t* cycle, int sFD){
     return c;
 }
 
-void WorkerProcess::handleSigpipe(int signum){
-    dbPrint("Caught signal SIGPIPE " << signum << std::endl);
+void WorkerProcess::handleSigpipe(){
+    struct sigaction sa;
+    memset(&sa, '\0', sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = 0;
+    if (sigaction(SIGPIPE, &sa, NULL)) return;
 }
 
 void WorkerProcess::processEvents(void *data, cycle_t* cycle, struct mt* shmMutex){
     uintptr_t flags; // if POST_EVENT or not 
     int timer; // timeout for epoll_wait()
 
-    signal(SIGPIPE, handleSigpipe);
+    handleSigpipe();
 
     timer = EPOLL_TIMEOUT;
     flags = 0;
@@ -155,7 +163,6 @@ void WorkerProcess::processEvents(void *data, cycle_t* cycle, struct mt* shmMute
 int WorkerProcess::trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmMutex){
     // get mutexI
     if (pthread_mutex_trylock(&shmMutex->mutex) == 0){
-        dbPrint("Worker " << getpid() << " got the mutex." << std::endl);
         // this process get the lock and does not held the lock 
         if (heldLock == 0){
             if (enableAcceptEvent(cycle) == 0){
@@ -200,9 +207,6 @@ void WorkerProcess::getEventQueue(cycle_t *cycle, int timer, uintptr_t flags){
                                     calloc(MAX_EPOLLFD, sizeof(event));
     
     int n = epoll_wait(epollFD, eventList, MAX_EPOLLFD, timer);
-
-    if (n == 0)
-        dbPrint("No event is in the event wait list" << std::endl);
 
     int i;
 

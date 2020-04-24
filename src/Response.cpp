@@ -9,6 +9,7 @@ void Response::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD){
     memset(readBuffer, 0, sizeof(readBuffer));
     c = (connection_t*) ev->data;
     read(c->fd, readBuffer, BUFFERLENGTH); // read request from the socket 
+
     std::string cmd(readBuffer);
 
     RequestHandler requestHandler;
@@ -20,17 +21,16 @@ void Response::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD){
         Dispatcher dsp;
         std::string response;
         response = dsp.dispatch(requestHandler);
-        dbPrint(response << std::endl);
 
-        char send_buff[10000];
-        char content_buff[10000];
+        char send_buff[1024];
+        char content_buff[1024];
 
         std::string header_buff;
         header_buff = "HTTP/1.1 " + std::to_string(220) + " OK" + "\r\n";
         header_buff += "Content-Type: text/html\r\n";
-        header_buff += "Connection: Close\r\n";
+        // header_buff += "Connection: Close\r\n";
         header_buff += "Content-Length: " + std::to_string(response.size()) + "\r\n";
-        header_buff += "Server: Qianying Zhou's Web Server\r\n";
+        header_buff += "Server: Qginx\r\n";
         header_buff += "\r\n";
 
         sprintf(send_buff, "%s", header_buff.c_str());
@@ -39,18 +39,23 @@ void Response::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD){
         write(c->fd, send_buff, strlen(send_buff));
 
         write(c->fd, content_buff, strlen(content_buff));
-    }else{
-        dbPrint("-----------STATE ERROR ------------" << std::endl);                    
+        
+        dbPrint(cycle->free_connections_n << std::endl);
+
+    }else if (cmd == ""){ // when client close connection, will receive 0 byte 
+        freeConnection(cycle, c, epollFD);
+        std::cout << "closed connection" << std::endl;
     }
     
-    freeConnection(cycle, c, epollFD);
 }
 
 void Response::freeConnection(cycle_t *cycle, connection_t *c, int epollFD){
     if (epl.epollDeleteEvent(epollFD, c->read, READ_EVENT, DISABLE_EVENT) == 0)
         std::perror("Deleting read event");
 
-    close(c->fd);
+    if (close(c->fd) == -1)
+        std::perror("Closing connection fd");
+
     // put back to free connections
     c->data = cycle->free_connections;
     cycle->free_connections = c;

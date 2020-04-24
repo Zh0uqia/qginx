@@ -61,7 +61,7 @@ std::string Controller::openFile(std::string fn){
 
     int src_fd = open(fn.c_str(), O_RDONLY, 0);
     if (src_fd < 0) {
-        dbPrint("404: failure of opening file" << std::endl);
+        std::perror("404: failure of opening file");
         res = "failure";
         return res;
     }
@@ -69,7 +69,7 @@ std::string Controller::openFile(std::string fn){
     close(src_fd);
     if (mmapRet == (void *)-1) {
         munmap(mmapRet, sbuf.st_size);
-        dbPrint("404: failure of opening file" << std::endl);
+        std::perror("404: failure of opening file");
         res = "failure";
         return res;
     }

@@ -36,7 +36,6 @@ connection_t* Handler::getConnection(cycle_t* cycle, int sFD){
 
 
 void Handler::acceptEventHandler(cycle_t* cycle, event_t* ev, int epollFD){
-    dbPrint("Accept event handler started" << std::endl);
 
     listening_t *ls;
     connection_t *c, *conn;
@@ -60,7 +59,6 @@ void Handler::acceptEventHandler(cycle_t* cycle, event_t* ev, int epollFD){
                               (socklen_t*)&addrlen);
         if (acceptFD == -1){
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                dbPrint("Accepted " << i << " requests" << std::endl);
                 break;
             }else{
                 std::perror("Accept error");
