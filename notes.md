@@ -276,4 +276,4 @@ else {
     }
 ```
 
-
+## Capability for tcp short and long connection

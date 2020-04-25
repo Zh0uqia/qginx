@@ -9,6 +9,12 @@ RequestHandler::RequestHandler()
     nowReadPos_(0)
 {}
 
+void RequestHandler::reset(){
+    state_ = STATE_STATUSLINE;
+    method_ = METHOD_GET_STATIC;
+    httpVersion_ = HTTP_10;
+}
+
 ProcessState RequestHandler::getState(){
     return RequestHandler::state_;
 }
@@ -71,7 +77,7 @@ void RequestHandler::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epo
 }
 */ 
 
-StatusState RequestHandler::processStatus(std::string cmd){
+StatusState RequestHandler::processStatus(std::string &cmd){
     size_t pos = nowReadPos_;
     size_t nxt;
 
@@ -154,7 +160,7 @@ StatusState RequestHandler::processStatus(std::string cmd){
     return STATUS_FINISH;
 }
 
-HeaderState RequestHandler::processHeader(std::string cmd){
+HeaderState RequestHandler::processHeader(std::string& cmd){
     if (nowReadPos_ == std::string::npos)
         return HEADER_ERROR;
 
@@ -162,12 +168,14 @@ HeaderState RequestHandler::processHeader(std::string cmd){
     std::smatch m;
     std::regex b("[\r][\n][\r][\n]");
 
+    // all match results are stored in array m
     if (std::regex_search(cmd, m, b)){
         // dbPrint("empty line found" << std::endl);
     }else{
         return HEADER_ERROR;
     }
 
+    // position of first char of "\r\n\r\n" + 4
     nowReadPos_ = m.position(m.size()-1) + 4;
 
     // dbPrint("Header is \n" << header << std::endl);
@@ -175,16 +183,21 @@ HeaderState RequestHandler::processHeader(std::string cmd){
     return HEADER_FINISH;
 }
 
-BodyState RequestHandler::processBody(std::string cmd){
+BodyState RequestHandler::processBody(std::string& cmd){
     if (nowReadPos_ < cmd.length()){
-        body_ = cmd.substr(nowReadPos_);
+        body_ = ""; // default: do not have body 
+
+        // this request ends, read next request 
+        cmd = cmd.substr(nowReadPos_);
 
         // dbPrint("body is \n" << cmd.substr(nowReadPos_) << std::endl); 
     }
+
+    body_ = "";
     return BODY_FINISH;
 }
 
-void RequestHandler::processRequest(std::string cmd){
+void RequestHandler::processRequest(std::string &cmd){
     if (cmd == "" || cmd.empty()){
         state_ = STATE_ERROR;
         return;

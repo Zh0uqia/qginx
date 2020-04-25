@@ -54,12 +54,13 @@ public:
     std::string getBody();
 
     void httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD);
-    void processRequest(std::string);
- 
+    void processRequest(std::string&);
+
+    void reset();
 private:
-    StatusState processStatus(std::string);
-    HeaderState processHeader(std::string);
-    BodyState processBody(std::string);
+    StatusState processStatus(std::string&);
+    HeaderState processHeader(std::string&);
+    BodyState processBody(std::string&);
 
     ProcessState state_;
     MethodState method_;

@@ -12,7 +12,7 @@
 
 #define READ_EVENT (EPOLLIN | EPOLLRDHUP)
 #define WRITE_EVENT EPOLLOUT
-#define DISABLE_EVENT 2
+#define DISABLE_EVENT 2 
 
 class Epoll
 {
@@ -22,6 +22,10 @@ public:
     int epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flag);
 
     int epollDeleteEvent(int ep, event_t *ev, intptr_t event, uintptr_t flag);
+
+    int epollAddConn(int ep, event_t *ev);
+
+    int epollDeleteConn(int ep, event_t *ev);
 
 private:
     int epollFd_;

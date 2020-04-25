@@ -51,33 +51,35 @@ void Handler::acceptEventHandler(cycle_t* cycle, event_t* ev, int epollFD){
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(PORT);
 
-    int i=0;
-
-    // for (int i=0; i<5; i++){
-    for ( ;; ){
-        int acceptFD = accept(listenFD, (struct sockaddr *)&addr, \
-                              (socklen_t*)&addrlen);
-        if (acceptFD == -1){
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                break;
-            }else{
-                std::perror("Accept error");
-                return;
-            }
+    int acceptFD = accept(listenFD, (struct sockaddr *)&addr, \
+                          (socklen_t*)&addrlen);
+    
+    /*
+    if (acceptFD == -1){
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            break;
+        }else{
+            std::perror("Accept error");
+            return;
         }
-        i++;
-
-        cycle->accept_disabled = cycle->total_connection/8 - cycle->free_connections_n; 
-        
-        setNonBlock(acceptFD);
-        
-        conn = getConnection(cycle, acceptFD); // get a free connection; bind acceptFD with it 
-        conn->listening = ls;
-
-        httpInitConnection(conn, epollFD);
     }
+    */
+
+    if (acceptFD == -1)
+        return;
+
+    cycle->accept_disabled = cycle->total_connection/8 - cycle->free_connections_n; 
+    
+    setNonBlock(acceptFD);
+    
+    conn = getConnection(cycle, acceptFD); // get a free connection; bind acceptFD with it 
+    conn->listening = ls;
+
+    httpInitConnection(conn, epollFD);
+
 }
 
+// set callback function for read event 
 void Handler::httpInitConnection(connection_t *c, int epollFD){
     event_t *rev;
     rev = c->read;
@@ -91,6 +93,6 @@ void Handler::httpInitConnection(connection_t *c, int epollFD){
     // c->write->handler = httpEmptyHandler;
     
     // add to epoll to check whether there are data to be read 
-    if (epl.epollAddEvent(epollFD, c->read, READ_EVENT, 0) == 0)
+    if (epl.epollAddConn(epollFD, c->read) == 0)
         std::perror("Adding read event");
 }

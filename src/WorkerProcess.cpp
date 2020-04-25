@@ -221,8 +221,11 @@ void WorkerProcess::getEventQueue(cycle_t *cycle, int timer, uintptr_t flags){
             if (rev->accept == 1)
                 postedAcceptEvents.push(rev);
             else if (flags & POST_EVENT)
+                // if POST_EVENT, delay processing time-consuming events
+                // until release lock 
                 postedDelayEvents.push(rev);
             else
+                // process read/write events right now 
                 rev->handl(cycle, rev, epollFD);
         }
         

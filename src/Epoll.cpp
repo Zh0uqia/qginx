@@ -12,6 +12,8 @@ int Epoll::epollInit(){
     return epollFd_;
 }
 
+// add listening socket to epoll 
+// level triggered
 int Epoll::epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags){
     int op;
     uint32_t events, prev;
@@ -28,7 +30,7 @@ int Epoll::epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags){
 
     }else{
         e = c->read;
-        prev = EPOLLIN|EPOLLRDHUP;
+        prev = EPOLLIN | EPOLLRDHUP;
     }
 
     if (e->active == 1) {
@@ -53,6 +55,7 @@ int Epoll::epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags){
 
 }
 
+// delete listening socket from epoll 
 int Epoll::epollDeleteEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags){
     int op;
     uint32_t prev;
@@ -68,7 +71,7 @@ int Epoll::epollDeleteEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags
 
     } else {
         e = c->read;
-        prev = EPOLLIN|EPOLLRDHUP;
+        prev = EPOLLIN | EPOLLET | EPOLLONESHOT;
     }
 
     if (e->active == 1) {
@@ -89,5 +92,45 @@ int Epoll::epollDeleteEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags
 
     ev->active = 0;
         
+    return 1;
+}
+
+// add connection (socket of accept()) to epoll
+// edge triggered
+int Epoll::epollAddConn(int ep, event_t *ev){
+    connection_t *c;
+    struct epoll_event ee;
+    
+    c = (connection_t*) ev->data;
+
+    ee.data.ptr = c;
+    ee.events = EPOLLIN | EPOLLOUT | EPOLLET | EPOLLRDHUP; // edge triggered
+    
+    if (epoll_ctl(ep, EPOLL_CTL_ADD, c->fd, &ee) == -1) 
+        return 0;
+
+    c->read->active = 1;
+    // c->write->active = 1; // enable when write callback is done
+
+    return 1;
+}
+
+// delete connection from epoll
+// important: when a fd is closed, epoll will automatically delete it 
+// so we do not need to explicitly call this function after close(fd)
+int Epoll::epollDeleteConn(int ep, event_t *ev){
+    connection_t *c;
+    struct epoll_event ee;
+
+    c = (connection_t*) ev->data;
+    ee.events = 0;
+    ee.data.ptr = NULL;
+
+    if (epoll_ctl(ep, EPOLL_CTL_DEL, c->fd, &ee) == -1)
+        return 0;
+
+    c->read->active = 0;
+    c->write->active = 0;
+
     return 1;
 }
