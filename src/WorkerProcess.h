@@ -47,7 +47,7 @@ public:
     void getEventQueue(cycle_t *cycle, int timer, uintptr_t flags);
     void processPostedEvent(cycle_t* cycle, std::queue<event_t*>&);
     
-    void handleSigpipe();
+    static void handleSigpipe(int);
  
 private:
     Epoll epl;

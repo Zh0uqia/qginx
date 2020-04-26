@@ -70,7 +70,10 @@ void Handler::acceptEventHandler(cycle_t* cycle, event_t* ev, int epollFD){
 
     cycle->accept_disabled = cycle->total_connection/8 - cycle->free_connections_n; 
     
-    setNonBlock(acceptFD);
+    if (setNonBlock(acceptFD) < 0){
+        std::perror("Set accept fd nonblock failed");
+        return;
+    }
     
     conn = getConnection(cycle, acceptFD); // get a free connection; bind acceptFD with it 
     conn->listening = ls;

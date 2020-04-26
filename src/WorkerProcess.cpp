@@ -117,20 +117,29 @@ connection_t* WorkerProcess::getConnection(cycle_t* cycle, int sFD){
 
     return c;
 }
-
+/*
 void WorkerProcess::handleSigpipe(){
     struct sigaction sa;
     memset(&sa, '\0', sizeof(sa));
     sa.sa_handler = SIG_IGN;
     sa.sa_flags = 0;
-    if (sigaction(SIGPIPE, &sa, NULL)) return;
+    if (sigaction(SIGPIPE, &sa, NULL) return;
 }
+*/
+
+void WorkerProcess::handleSigpipe(int signum){
+    std::cout << "Caught signal SIGPIPE " << signum << std::endl;
+    exit(0);
+}
+
 
 void WorkerProcess::processEvents(void *data, cycle_t* cycle, struct mt* shmMutex){
     uintptr_t flags; // if POST_EVENT or not 
     int timer; // timeout for epoll_wait()
 
-    handleSigpipe();
+    // handleSigpipe();
+    signal(SIGPIPE, handleSigpipe);
+
 
     timer = EPOLL_TIMEOUT;
     flags = 0;
@@ -161,7 +170,7 @@ void WorkerProcess::processEvents(void *data, cycle_t* cycle, struct mt* shmMute
 }
 
 int WorkerProcess::trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmMutex){
-    // get mutexI
+    // get mutex
     if (pthread_mutex_trylock(&shmMutex->mutex) == 0){
         // this process get the lock and does not held the lock 
         if (heldLock == 0){

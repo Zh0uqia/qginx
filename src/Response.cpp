@@ -72,7 +72,7 @@ void Response::httpWriteHandler(cycle_t *cycle, event_t *ev, int epollFD){
     connection_t *c;
     c = (connection_t*) ev->data;
 
-    if (writen(c->fd, outBuffer_, sizeof(outBuffer_)) < 0)
+    if (writen(c->fd, outBuffer_, outBuffer_.size()) < 0)
         return;
     if (outBuffer_.size() > 0){
         if (epl.epollAddEvent(epollFD, ev, WRITE_EVENT, 0) < 0)
@@ -87,19 +87,21 @@ void Response::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD){
     c = (connection_t*) ev->data;
 
     bool isZero = false;
-    if (readn(c->fd, inBuffer, isZero) == -1)
+    if (readn(c->fd, inBuffer_, isZero) == -1)
         return;
-    else if (isZero == true){
-        // dbPrint("free connection fd = " << c->fd << std::endl);
-        // freeConnection(cycle, c, epollFD);
+    // client has closed the connection 
+    else if (isZero == true){ 
+        dbPrint("free connection fd = " << c->fd << std::endl);
+        freeConnection(cycle, c, epollFD);
     }else{
-        while (inBuffer.size() > 0){
+        while (inBuffer_.size() > 0){
             // inBuffer have chunks of request data
             // analyze the request data one by one
             // when have data to write, handleWrite()
             
+            dbPrint("inBuffer_ size is " << inBuffer_.size() << std::endl);
             requestHandler.reset(); // reset instance for each request 
-            httpRequestAnalyze(inBuffer);
+            httpRequestAnalyze(inBuffer_);
             
             if (outBuffer_.size() > 0){ // have data to write
                 httpWriteHandler(cycle, ev, epollFD);
@@ -127,7 +129,7 @@ void Response::httpRequestAnalyze(std::string& inBuffer){
         outBuffer_ += response;
     
     }else{
-        // std::cout << "analysis state error" << std::endl;
+        dbPrint("analysis state error" << std::endl);
     }
 }
 

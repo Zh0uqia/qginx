@@ -13,6 +13,7 @@ void RequestHandler::reset(){
     state_ = STATE_STATUSLINE;
     method_ = METHOD_GET_STATIC;
     httpVersion_ = HTTP_10;
+    nowReadPos_ = 0;
 }
 
 ProcessState RequestHandler::getState(){
@@ -185,15 +186,20 @@ HeaderState RequestHandler::processHeader(std::string& cmd){
 
 BodyState RequestHandler::processBody(std::string& cmd){
     if (nowReadPos_ < cmd.length()){
-        body_ = ""; // default: do not have body 
+        // should add body if processing POST requests 
+        body_ = ""; // we suppose that all get request does not have body 
 
         // this request ends, read next request 
         cmd = cmd.substr(nowReadPos_);
 
         // dbPrint("body is \n" << cmd.substr(nowReadPos_) << std::endl); 
+    }else{
+        // cmd just include one request 
+        body_ = "";        
     }
+    // get rid of processed requests 
+    cmd = cmd.substr(nowReadPos_);
 
-    body_ = "";
     return BODY_FINISH;
 }
 

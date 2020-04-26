@@ -22,7 +22,7 @@ private:
     Epoll epl;
     RequestHandler requestHandler;
 
-    std::string inBuffer;
+    std::string inBuffer_;
     std::string outBuffer_;
 };
 
