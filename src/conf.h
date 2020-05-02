@@ -15,14 +15,20 @@
 
 #define BUFFERLENGTH 1024
 
-#define WORKER_NUMBER 1
+#define WORKER_NUMBER 2
 
 #define MAX_EPOLLFD 1024
 
+// if EPOLLEXCLUSIVE is on, do not need to enable accept_mutex
+#define ACCEPT_MUTEX 0 // default off, because epoll can handle thunderding herd problem now
+
+// the process get the lock will block until new connection comes in 
 #define EPOLL_TIMEOUT -1
 
+// the process did not get the lock will wait for 500 ms 
 #define MUTEX_DELAY 500
 
-#define MAX_CONNECTIONS 768
+// maximum free connectionseach process has 
+#define MAX_CONNECTIONS 1024
 
 

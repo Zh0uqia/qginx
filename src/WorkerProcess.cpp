@@ -2,12 +2,10 @@
 #include <WorkerProcess.h>
 
 WorkerProcess::WorkerProcess(void *data, cycle_t* cycle)
-    : heldLock(0),
-    acceptEvent(1)
+    : heldLock(0)
 {
      // initiate connection and events
     ls = cycle->listening;
-
     // initiate cycle 
    
     cycle->read_event = (event_t*) calloc(MAX_CONNECTIONS, sizeof(event_t));
@@ -28,9 +26,6 @@ WorkerProcess::~WorkerProcess(){
     free(cycleWriteEvent);
     free(cycleConnection);
 
-    if (close(epollFD) == -1)
-        std::perror("Closing epoll fd");
-
     cycleReadEvent = NULL;
     cycleWriteEvent = NULL;
     cycleConnection = NULL;
@@ -39,7 +34,7 @@ WorkerProcess::~WorkerProcess(){
 void WorkerProcess::workerProcessCycle(void *data, cycle_t* cycle, struct mt* shmMutex){
     workerProcessInit(data, cycle);
             
-    // for (int j=0; j<3; j++){
+    // for (int j=0; j<5000; j++){
     for ( ;; ){
         processEvents(data, cycle, shmMutex);
         
@@ -76,6 +71,8 @@ void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
     cycle->free_connections_n = MAX_CONNECTIONS;
 
     cycle->total_connection = MAX_CONNECTIONS;
+    cycle->accept_disabled = cycle->total_connection/8 - cycle->free_connections_n; 
+    
     // initialize conncection, read and write events
     conn = getConnection(cycle, ls->fd); // get a free connection 
     conn->listening = ls;
@@ -91,7 +88,13 @@ void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
     rev->handl = acceptHandler;
 
     // wev = conn->write;
-    
+
+    // if do not use mutex, add listen fd to every process 
+    if (ACCEPT_MUTEX == 0)
+        if (epl.epollAddEvent(epollFD, conn->read, \
+                              READ_EVENT, EPOLLEXCLUSIVE) == 0){
+            std::perror("Adding the exclusive accept event");
+    }
 }
 
 connection_t* WorkerProcess::getConnection(cycle_t* cycle, int sFD){
@@ -110,6 +113,7 @@ connection_t* WorkerProcess::getConnection(cycle_t* cycle, int sFD){
     c->write = wevent;
     c->fd = sFD;
 
+    // reset revent and wevent because we did not do it in freeConnection()
     memset(revent, 0, sizeof(event_t));
     memset(wevent, 0, sizeof(event_t));
     revent->data = c;
@@ -129,7 +133,7 @@ void WorkerProcess::handleSigpipe(){
 
 void WorkerProcess::handleSigpipe(int signum){
     std::cout << "Caught signal SIGPIPE " << signum << std::endl;
-    exit(0);
+    return;
 }
 
 
@@ -140,39 +144,44 @@ void WorkerProcess::processEvents(void *data, cycle_t* cycle, struct mt* shmMute
     // handleSigpipe();
     signal(SIGPIPE, handleSigpipe);
 
+    timer = EPOLL_TIMEOUT; //reset timer every loop 
+    flags = 0; // reset flags every loop 
 
-    timer = EPOLL_TIMEOUT;
-    flags = 0;
-
-    if (cycle->accept_disabled > 0){
-        cycle->accept_disabled--;
-    }else{
-
-        if (trylockAcceptMutex(data, cycle, shmMutex) == 0){
-            return;
+    if (ACCEPT_MUTEX){
+        if (cycle->accept_disabled > 0){
+            cycle->accept_disabled--;
+        }else{
+            if (trylockAcceptMutex(data, cycle, shmMutex) == 0){
+                return;
+            }
+            if (heldLock == 1)
+                flags |= POST_EVENT;
+            else{
+                if (timer == EPOLL_TIMEOUT || timer>MUTEX_DELAY)
+                    timer = MUTEX_DELAY;
+            }
         }
-    
-        if (heldLock == 1)
-            flags = POST_EVENT;
-        else{
-            if (timer == EPOLL_TIMEOUT)
-                timer = MUTEX_DELAY;
-        }
+    }
 
     getEventQueue(cycle, timer, flags);
     processPostedEvent(cycle, postedAcceptEvents);
 
-    if (heldLock == 1)
-        pthread_mutex_unlock(&shmMutex->mutex);
-
-    processPostedEvent(cycle, postedDelayEvents);
+    if (heldLock == 1){
+        // might failed if current process does not own the mutex
+        if (pthread_mutex_unlock(&shmMutex->mutex) != 0)
+            std::perror("Unlocking");
     }
+    processPostedEvent(cycle, postedDelayEvents);
+
 }
 
 int WorkerProcess::trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmMutex){
     // get mutex
-    if (pthread_mutex_trylock(&shmMutex->mutex) == 0){
+    int getLock;
+
+    if ((getLock = pthread_mutex_trylock(&shmMutex->mutex)) == 0){
         // this process get the lock and does not held the lock 
+        // dbPrint("Worker " << data << " got the lock " << std::endl);
         if (heldLock == 0){
             if (enableAcceptEvent(cycle) == 0){
                 pthread_mutex_unlock(&shmMutex->mutex);
@@ -182,18 +191,22 @@ int WorkerProcess::trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmM
 
         heldLock = 1;
         return 1;
-    }
-    
-    // if did not get the lock, but hold the lock in last round, then unlock it
-    if (heldLock == 1){
-        if (epl.epollDeleteEvent(epollFD, conn->read, READ_EVENT, DISABLE_EVENT) == 0){
-            std::perror("Deleting the accept event");
-            return 0;
+    }else if (getLock == EBUSY){
+        // if did not get the lock, but hold the lock in last round, then unlock it
+        if (heldLock == 1){
+            if (epl.epollDeleteEvent(epollFD, conn->read, READ_EVENT, DISABLE_EVENT) == 0){
+                std::perror("Deleting the accept event");
+                return 0;
+            }
+            // dbPrint("------------Process " << data << " delete fd-----------" << std::endl);
+            heldLock = 0;
         }
-        heldLock = 0;
-    }
 
-    return 1;
+        return 1;
+    }else{
+        std::perror("Getting the mutex lock");
+        return 0;
+    }
 }
 
 int WorkerProcess::enableAcceptEvent(cycle_t *cycle){
@@ -227,15 +240,17 @@ void WorkerProcess::getEventQueue(cycle_t *cycle, int timer, uintptr_t flags){
         revent = ee.events;
 
         if ((revent & EPOLLIN) && rev->active) {
-            if (rev->accept == 1)
-                postedAcceptEvents.push(rev);
-            else if (flags & POST_EVENT)
+            if (flags & POST_EVENT){
+                if (rev->accept == 1)
                 // if POST_EVENT, delay processing time-consuming events
                 // until release lock 
-                postedDelayEvents.push(rev);
-            else
+                    postedAcceptEvents.push(rev);
+                else
+                    postedDelayEvents.push(rev);  
+            }else
                 // process read/write events right now 
                 rev->handl(cycle, rev, epollFD);
+   
         }
         
         wev = c->write;
@@ -246,6 +261,7 @@ void WorkerProcess::getEventQueue(cycle_t *cycle, int timer, uintptr_t flags){
                 wev->handl(cycle, wev, epollFD);
         }
     }
+    
     free(eventList);
 }
 
@@ -258,4 +274,5 @@ void WorkerProcess::processPostedEvent(cycle_t* cycle, \
         arr.pop();
         cur->handl(cycle, cur, epollFD);
     }
+
 }

@@ -21,7 +21,7 @@ void MasterProcess::startWorkerProcess(cycle_t* cycle){
 
         pid = pcs.spawnProcess(cb, (void *) (intptr_t) i, cycle, mutexShmPTR);
         if (pid == 0)
-            break;
+            break; // do not spawn child process for child processes 
         else if (pid<0){
             return;
         }

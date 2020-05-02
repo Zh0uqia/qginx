@@ -12,6 +12,11 @@ int Epoll::epollInit(){
     return epollFd_;
 }
 
+Epoll::~Epoll(){
+    if (epollFd_ >= 0)
+        close(epollFd_);
+}
+
 // add listening socket to epoll 
 // level triggered
 int Epoll::epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags){
@@ -40,13 +45,12 @@ int Epoll::epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags){
         op = EPOLL_CTL_ADD; // accept event 
     }
     
-    ee.events = events | (uint32_t) flags;
+    ee.events = events | (uint32_t) flags; // set epoll flags here 
     ee.data.ptr = c;
     // ee.data.fd = c->fd; // fatal error! epoll_data is a union, not a struct 
 
     if (epoll_ctl(ep, op, c->fd, &ee) == -1) {
         return 0;
-
     }
     
     ev->active = 1;
@@ -71,7 +75,7 @@ int Epoll::epollDeleteEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags
 
     } else {
         e = c->read;
-        prev = EPOLLIN | EPOLLET | EPOLLONESHOT;
+        prev = EPOLLIN | EPOLLRDHUP;
     }
 
     if (e->active == 1) {

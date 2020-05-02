@@ -1,6 +1,5 @@
 #include <iostream>
 #include <Response.h>
-#include <bits/stdc++.h>
 
 // edge trigger: read until nothing to read 
 ssize_t Response::readn(int fd, std::string &inBuffer, bool &isZero){
@@ -15,7 +14,7 @@ ssize_t Response::readn(int fd, std::string &inBuffer, bool &isZero){
             if (errno == EINTR)
                 continue;
             else if (errno == EAGAIN){
-                dbPrint("Read " << readSum << " bytes " << std::endl);
+                // dbPrint("Read " << readSum << " bytes " << std::endl);
                 break;
             }else{
                 std::perror("Read from socket");
@@ -23,7 +22,7 @@ ssize_t Response::readn(int fd, std::string &inBuffer, bool &isZero){
             }
         }else if (nread == 0){ // nothing in read socket, client may have closed
             isZero = true;
-            dbPrint("Read 0 byte." << std::endl);
+            // dbPrint("Read 0 byte." << std::endl);
             break;
         }else{
             readSum += nread;
@@ -87,11 +86,12 @@ void Response::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD){
     c = (connection_t*) ev->data;
 
     bool isZero = false;
-    if (readn(c->fd, inBuffer_, isZero) == -1)
-        return;
-    // client has closed the connection 
-    else if (isZero == true){ 
-        dbPrint("free connection fd = " << c->fd << std::endl);
+
+    // error exists, e.g. "Connection reset by peer"
+    if (readn(c->fd, inBuffer_, isZero) == -1){
+        freeConnection(cycle, c, epollFD);
+    }else if (isZero == true){ 
+        // dbPrint("free connection fd = " << c->fd << std::endl);
         freeConnection(cycle, c, epollFD);
     }else{
         while (inBuffer_.size() > 0){
@@ -99,7 +99,6 @@ void Response::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD){
             // analyze the request data one by one
             // when have data to write, handleWrite()
             
-            dbPrint("inBuffer_ size is " << inBuffer_.size() << std::endl);
             requestHandler.reset(); // reset instance for each request 
             httpRequestAnalyze(inBuffer_);
             
@@ -107,6 +106,7 @@ void Response::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD){
                 httpWriteHandler(cycle, ev, epollFD);
             }
         }
+        inBuffer_.clear();
     }
 }
 
@@ -148,6 +148,7 @@ void Response::freeConnection(cycle_t *cycle, connection_t *c, int epollFD){
     cycle->free_connections = c;
     cycle->free_connections_n++;
 
+    // dbPrint("Number of free connections is " << cycle->free_connections_n << std::endl);
     // reset c
     c->fd = 0;
         

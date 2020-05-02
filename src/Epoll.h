@@ -10,13 +10,15 @@
 #include <unistd.h>
 #include <Core.h>
 
-#define READ_EVENT (EPOLLIN | EPOLLRDHUP)
+// #define READ_EVENT (EPOLLIN | EPOLLRDHUP) // EPOLLRDHUP cannot exists with EPOLLEXCLUSIVE
+#define READ_EVENT EPOLLIN
 #define WRITE_EVENT EPOLLOUT
 #define DISABLE_EVENT 2 
 
 class Epoll
 {
 public:
+    ~ Epoll();
     int epollInit();
 
     int epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flag);

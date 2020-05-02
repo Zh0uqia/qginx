@@ -59,7 +59,6 @@ private:
     std::queue<event_t*> postedDelayEvents;
 
     int heldLock;
-    int acceptEvent;
 
     Handler handler;
 

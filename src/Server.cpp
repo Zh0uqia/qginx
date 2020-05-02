@@ -44,6 +44,7 @@ void Server::serverInit(){
                                                   &opt, sizeof(opt)))
     {
         std::perror("set sockopt failed");
+        close(serverFD);
         exit(EXIT_FAILURE);
     }
 
@@ -56,17 +57,20 @@ void Server::serverInit(){
                                  sizeof(address_))<0)
     {
         std::perror("bind failed");
+        close(serverFD);
         exit(EXIT_FAILURE);
     }
 
     if (listen(serverFD, 3) < 0)
     {
         std::perror("listen failed");
+        close(serverFD);
         exit(EXIT_FAILURE);
     }
 
     if (setNonBlocking() == -1){
         std::perror("set non-blocking failed");
+        close(serverFD);
         exit(EXIT_FAILURE);
     }
 
