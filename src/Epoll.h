@@ -10,8 +10,7 @@
 #include <unistd.h>
 #include <Core.h>
 
-// #define READ_EVENT (EPOLLIN | EPOLLRDHUP) // EPOLLRDHUP cannot exists with EPOLLEXCLUSIVE
-#define READ_EVENT EPOLLIN
+#define READ_EVENT (EPOLLIN | EPOLLRDHUP) // EPOLLRDHUP cannot exists with EPOLLEXCLUSIVE
 #define WRITE_EVENT EPOLLOUT
 #define DISABLE_EVENT 2 
 

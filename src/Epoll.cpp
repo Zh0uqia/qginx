@@ -45,11 +45,16 @@ int Epoll::epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags){
         op = EPOLL_CTL_ADD; // accept event 
     }
     
+    if (flags & EPOLLEXCLUSIVE)
+        events &= ~EPOLLRDHUP; // disable EPOLLRDHUP
+
     ee.events = events | (uint32_t) flags; // set epoll flags here 
     ee.data.ptr = c;
     // ee.data.fd = c->fd; // fatal error! epoll_data is a union, not a struct 
 
     if (epoll_ctl(ep, op, c->fd, &ee) == -1) {
+        dbPrint("ev.events is " << ee.events \
+                << " and flag is " << flags << std::endl);
         return 0;
     }
     

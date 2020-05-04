@@ -172,6 +172,7 @@ void WorkerProcess::processEvents(void *data, cycle_t* cycle, struct mt* shmMute
             std::perror("Unlocking");
     }
     processPostedEvent(cycle, postedDelayEvents);
+    
 
 }
 
@@ -193,7 +194,7 @@ int WorkerProcess::trylockAcceptMutex(void *data, cycle_t*cycle, struct mt* shmM
         return 1;
     }else if (getLock == EBUSY){
         // if did not get the lock, but hold the lock in last round, then unlock it
-        if (heldLock == 1){
+       if (heldLock == 1){
             if (epl.epollDeleteEvent(epollFD, conn->read, READ_EVENT, DISABLE_EVENT) == 0){
                 std::perror("Deleting the accept event");
                 return 0;
@@ -229,10 +230,10 @@ void WorkerProcess::getEventQueue(cycle_t *cycle, int timer, uintptr_t flags){
                                     calloc(MAX_EPOLLFD, sizeof(event));
     
     int n = epoll_wait(epollFD, eventList, MAX_EPOLLFD, timer);
+    if (n==-1)
+        std::perror("Epoll wait error");
 
-    int i;
-
-    for (i=0; i<n; i++){
+    for (int i=0; i<n; i++){
         ee = eventList[i];
     
         c = (connection_t*) ee.data.ptr;

@@ -41,13 +41,14 @@ void Server::serverInit(){
     
     // Forcefully attaching socket to the port 8080
     if (setsockopt(serverFD, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
-                                                  &opt, sizeof(opt)))
+                                                  &opt, sizeof(opt)) <0 )
     {
         std::perror("set sockopt failed");
         close(serverFD);
         exit(EXIT_FAILURE);
     }
 
+    memset(&address_, '\0', sizeof(address_));
     address_.sin_family = AF_INET;
     address_.sin_addr.s_addr = INADDR_ANY;
     address_.sin_port = htons(port_);
@@ -61,7 +62,7 @@ void Server::serverInit(){
         exit(EXIT_FAILURE);
     }
 
-    if (listen(serverFD, 3) < 0)
+    if (listen(serverFD, 511) < 0)
     {
         std::perror("listen failed");
         close(serverFD);

@@ -47,9 +47,6 @@ void Handler::acceptEventHandler(cycle_t* cycle, event_t* ev, int epollFD){
 
     struct sockaddr_in addr;
     int addrlen = sizeof(addr);
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(PORT);
 
     int acceptFD = accept(listenFD, (struct sockaddr *)&addr, \
                           (socklen_t*)&addrlen);
@@ -96,6 +93,6 @@ void Handler::httpInitConnection(connection_t *c, int epollFD){
     // c->write->handler = httpEmptyHandler;
     
     // add to epoll to check whether there are data to be read 
-    if (epl.epollAddConn(epollFD, c->read) == 0)
+    if (epl.epollAddEvent(epollFD, c->read, READ_EVENT, 0) == 0)
         std::perror("Adding read event");
 }

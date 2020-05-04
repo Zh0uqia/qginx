@@ -22,7 +22,7 @@ ssize_t Response::readn(int fd, std::string &inBuffer, bool &isZero){
             }
         }else if (nread == 0){ // nothing in read socket, client may have closed
             isZero = true;
-            // dbPrint("Read 0 byte." << std::endl);
+            dbPrint("Read 0 byte." << std::endl);
             break;
         }else{
             readSum += nread;
