@@ -2,7 +2,7 @@
 #include <Epoll.h>
 
 int Epoll::epollInit(){
-    epollFd_ = epoll_create1(0);
+    epollFd_ = epoll_create(250);
 
     if (epollFd_ < 0) {
         perror("Epoll create failed");
@@ -53,11 +53,17 @@ int Epoll::epollAddEvent(int ep, event_t *ev, intptr_t event, uintptr_t flags){
     // ee.data.fd = c->fd; // fatal error! epoll_data is a union, not a struct 
 
     if (epoll_ctl(ep, op, c->fd, &ee) == -1) {
-        dbPrint("ev.events is " << ee.events \
-                << " and flag is " << flags << std::endl);
+        std::cout << "Error: " << "ev.events is " << ee.events \
+                << " and flag is " << flags << " and op is " \
+                << op << " and fd is " << c->fd \
+                << " and epoll is " << ep << std::endl;
         return 0;
-    }
-    
+    }else
+        std::cout << getpid() << " Correct: " << "ev.events is " << ee.events \
+                << " and flag is " << flags << " and op is " \
+                << op << " and fd is " << c->fd \
+                << " and epoll is " << ep << std::endl;
+           
     ev->active = 1;
 
     return 1;

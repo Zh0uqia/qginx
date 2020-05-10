@@ -40,7 +40,7 @@ void Server::serverInit(){
     }
     
     // Forcefully attaching socket to the port 8080
-    if (setsockopt(serverFD, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+    if (setsockopt(serverFD, SOL_SOCKET, SO_REUSEADDR,
                                                   &opt, sizeof(opt)) <0 )
     {
         std::perror("set sockopt failed");
