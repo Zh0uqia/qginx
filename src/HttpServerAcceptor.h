@@ -1,6 +1,7 @@
 #pragma once
 #include <conf.h>
 #include <Core.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,17 +18,20 @@
 
 #include <Response.h>
 #include <Epoll.h>
+#include <HttpTransport.h>
+#include <HttpCodec.h>
 
-class Handler
+class HttpServerAcceptor
 {
 public:
     int setNonBlock(int fd);
     void acceptEventHandler(cycle_t *cycle, event_t* ev, int epollFD);
     connection_t* getConnection(cycle_t* cycle, int sFD);
     void httpInitConnection(connection_t *c, int epollFD);
- 
+    void setTransport(connection_t *c);
+
 private:
-    Response rp;
+    HttpCodec codec_;
     Epoll epl;
 };
 

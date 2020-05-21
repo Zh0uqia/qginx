@@ -1,7 +1,7 @@
 #include <iostream>
-#include <Handler.h>
+#include <HttpServerAcceptor.h>
 
-int Handler::setNonBlock(int fd){
+int HttpServerAcceptor::setNonBlock(int fd){
     int flags;
 
     if ((flags = fcntl(fd, F_GETFL, 0)) == -1)
@@ -10,7 +10,7 @@ int Handler::setNonBlock(int fd){
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
-connection_t* Handler::getConnection(cycle_t* cycle, int sFD){
+connection_t* HttpServerAcceptor::getConnection(cycle_t* cycle, int sFD){
     connection_t* c;
     event_t *revent, *wevent;
 
@@ -35,7 +35,7 @@ connection_t* Handler::getConnection(cycle_t* cycle, int sFD){
 }
 
 
-void Handler::acceptEventHandler(cycle_t* cycle, event_t* ev, int epollFD){
+void HttpServerAcceptor::acceptEventHandler(cycle_t* cycle, event_t* ev, int epollFD){
 
     listening_t *ls;
     connection_t *c, *conn;
@@ -80,7 +80,7 @@ void Handler::acceptEventHandler(cycle_t* cycle, event_t* ev, int epollFD){
 }
 
 // set callback function for read event 
-void Handler::httpInitConnection(connection_t *c, int epollFD){
+void HttpServerAcceptor::httpInitConnection(connection_t *c, int epollFD){
     event_t *rev;
     rev = c->read;
 
@@ -95,4 +95,10 @@ void Handler::httpInitConnection(connection_t *c, int epollFD){
     // add to epoll to check whether there are data to be read 
     if (epl.epollAddEvent(epollFD, c->read, READ_EVENT, 0) == 0)
         std::perror("Adding read event");
+
+    setTransport(conn);
+}
+
+void HttpServerAcceptor::setTransport(connection_t *c){
+    
 }

@@ -11,9 +11,9 @@ WorkerProcess::WorkerProcess(void *data, cycle_t* cycle)
     cycle->read_event = (event_t*) calloc(MAX_CONNECTIONS, sizeof(event_t));
     cycle->write_event = (event_t*) calloc(MAX_CONNECTIONS, sizeof(event_t));
     cycle->connection = (connection_t*) calloc(MAX_CONNECTIONS, sizeof(connection_t));
-    if (cycle->connection == NULL || cycle->read_event == NULL \
-        || cycle->write_event == NULL)
-        std::perror("Connection of cycle is NULL"); 
+    if (cycle->connection == nullptr || cycle->read_event == nullptr \
+        || cycle->write_event == nullptr)
+        std::perror("Creating connection pool"); 
     
     cycleReadEvent = cycle->read_event;
     cycleWriteEvent = cycle->write_event;
@@ -26,9 +26,9 @@ WorkerProcess::~WorkerProcess(){
     free(cycleWriteEvent);
     free(cycleConnection);
 
-    cycleReadEvent = NULL;
-    cycleWriteEvent = NULL;
-    cycleConnection = NULL;
+    cycleReadEvent = nullptr;
+    cycleWriteEvent = nullptr;
+    cycleConnection = nullptr;
 }
 
 void WorkerProcess::workerProcessCycle(void *data, cycle_t* cycle, struct mt* shmMutex){
@@ -73,8 +73,8 @@ void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
     cycle->total_connection = MAX_CONNECTIONS;
     cycle->accept_disabled = cycle->total_connection/8 - cycle->free_connections_n; 
     
-    // initialize conncection, read and write events
-    conn = getConnection(cycle, ls->fd); // get a free connection 
+    // initialize conncection, read and write events for socket listen 
+    conn = getConnection(cycle, ls->fd);
     conn->listening = ls;
     ls->connection = conn;
 
@@ -82,11 +82,7 @@ void WorkerProcess::workerProcessInit(void *data, cycle_t* cycle){
     rev->accept = 1;
     rev->active = 0;
 
-    auto acceptHandler = std::bind(&Handler::acceptEventHandler, \
-                            &handler, std::placeholders::_1, \
-                            std::placeholders::_2, std::placeholders::_3);
-    rev->handl = acceptHandler;
-
+    addAcceptorCB(rev);
     // wev = conn->write;
 
     // if do not use mutex, add listen fd to every process 
@@ -277,3 +273,11 @@ void WorkerProcess::processPostedEvent(cycle_t* cycle, \
     }
 
 }
+
+void WorkerProcess::addAcceptorCB(event_t* event_to_bind){
+    auto acceptHandler = std::bind(&HttpServerAcceptor::acceptEventHandler, \
+                            &acceptor, std::placeholders::_1, \
+                            std::placeholders::_2, std::placeholders::_3);
+    event_to_bind->handl = acceptHandler;
+}
+

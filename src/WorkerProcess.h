@@ -10,7 +10,7 @@
 #include <Mutex.h>
 #include <Epoll.h>
 #include <Core.h>
-#include <Handler.h>
+#include <HttpServerAcceptor.h>
 #include <queue>
 #include <signal.h>
 
@@ -34,6 +34,8 @@ public:
 
     // process_t processes[MAX_PROCESSES];
     
+    void addAcceptorCB(event_t* event_to_bind);
+ 
     connection_t* getConnection(cycle_t* cycle, int sFD);
  
     void workerProcessInit(void *data, cycle_t* cycle);
@@ -60,7 +62,7 @@ private:
 
     int heldLock;
 
-    Handler handler;
+    HttpServerAcceptor acceptor;
 
     event_t *cycleReadEvent, *cycleWriteEvent;
     connection_t *cycleConnection, *conn;
