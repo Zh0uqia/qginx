@@ -1,8 +1,12 @@
 CXX = g++
 CXXFLAGS = -Wall -g
-INCLUDES = -I. -I../version_2/external/fastcgi
+INCLUDES = -I.
 CLIBS = -lpthread
-SRCS = $(wildcard *.cpp)
+
+CGI = external/fastcgi/*.c
+PARSER = external/http-parser/*.c
+ARCHIVED = archived/*.cpp
+SRCS = $(wildcard *.cpp $(CGI) $(PARSER) $(ARCHIVED))
 OBJS = $(SRCS:.c=.o)
 
 DEBUG ?= 1
@@ -16,7 +20,7 @@ MAIN = webserver
 .PHONY: depend clean 
 
 $(MAIN): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) ../version_2/external/fastcgi/fcgi.c -o $@ $^ $(CLIBS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $^ $(CLIBS)
 
 .c.o:
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@

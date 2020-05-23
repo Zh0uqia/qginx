@@ -1,5 +1,6 @@
 #include <iostream>
 #include <HttpServerAcceptor.h>
+#include <HttpSession.h>
 
 int HttpServerAcceptor::setNonBlock(int fd){
     int flags;
@@ -75,30 +76,29 @@ void HttpServerAcceptor::acceptEventHandler(cycle_t* cycle, event_t* ev, int epo
     conn = getConnection(cycle, acceptFD); // get a free connection; bind acceptFD with it 
     conn->listening = ls;
 
-    httpInitConnection(conn, epollFD);
-
+    onNewConnection(conn, epollFD);
+    
 }
 
-// set callback function for read event 
-void HttpServerAcceptor::httpInitConnection(connection_t *c, int epollFD){
+// set codec for each connection 
+void HttpServerAcceptor::onNewConnection(connection_t *c, int epollFD){
+    std::unique_ptr<HttpCodec> codec = codecFactory_.getCodec(TransportDirection::DOWNSTREAM);
+    HttpSession* session = new HttpSession(std::move(codec));
+ 
     event_t *rev;
     rev = c->read;
 
     // change handler of read and write events 
-    auto waitRequestHandler = std::bind(&Response::httpWaitRequestHandler, \
-                            &rp, std::placeholders::_1, \
+    auto waitRequestHandler = std::bind(&HttpSession::httpWaitRequestHandler, \
+                            session, std::placeholders::_1, \
                             std::placeholders::_2, std::placeholders::_3);
     
     rev->handl = waitRequestHandler;
     // c->write->handler = httpEmptyHandler;
-    
+     
     // add to epoll to check whether there are data to be read 
     if (epl.epollAddEvent(epollFD, c->read, READ_EVENT, 0) == 0)
         std::perror("Adding read event");
 
-    setTransport(conn);
 }
 
-void HttpServerAcceptor::setTransport(connection_t *c){
-    
-}

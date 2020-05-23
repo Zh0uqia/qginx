@@ -16,10 +16,9 @@
 #include <netinet/in.h>      // For sockaddr_in
 #include <fcntl.h>
 
-#include <Response.h>
 #include <Epoll.h>
-#include <HttpTransport.h>
-#include <HttpCodec.h>
+#include <HttpCodecFactory.h>
+#include <HttpSession.h>
 
 class HttpServerAcceptor
 {
@@ -27,11 +26,10 @@ public:
     int setNonBlock(int fd);
     void acceptEventHandler(cycle_t *cycle, event_t* ev, int epollFD);
     connection_t* getConnection(cycle_t* cycle, int sFD);
-    void httpInitConnection(connection_t *c, int epollFD);
-    void setTransport(connection_t *c);
-
+    void onNewConnection(connection_t *c, int epollFD);
+    
 private:
-    HttpCodec codec_;
+    HttpCodecFactory codecFactory_;
     Epoll epl;
 };
 

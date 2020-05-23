@@ -17,8 +17,8 @@
 
 #include <Core.h>
 #include <MasterProcess.h>
-#include <RequestHandler.h>
-#include <Dispatcher.h>
+#include <archived/Dispatcher.h>
+#include <archived/RequestHandler.h>
 
 class Server
 {
