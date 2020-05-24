@@ -82,8 +82,9 @@ void HttpServerAcceptor::acceptEventHandler(cycle_t* cycle, event_t* ev, int epo
 
 // set codec for each connection 
 void HttpServerAcceptor::onNewConnection(connection_t *c, int epollFD){
+    // a TCP connection is binded with a session, a codec, and a http parser 
     std::unique_ptr<HttpCodec> codec = codecFactory_.getCodec(TransportDirection::DOWNSTREAM);
-    HttpSession* session = new HttpSession(std::move(codec));
+    HttpSession* session = new HttpSession(std::move(codec)); // remember to free
  
     event_t *rev;
     rev = c->read;
