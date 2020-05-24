@@ -20,7 +20,7 @@ public:
     int onUrl(const char* buf, size_t len);
     int onHeaderField(const char* buf, size_t len);
     int onHeaderValue(const char* buf, size_t len);
-    int onHeaderComplete();
+    int onHeadersComplete();
     int onBody(const char* buf, size_t len);
     int onMessageComplete();
 

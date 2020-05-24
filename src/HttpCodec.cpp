@@ -51,7 +51,7 @@ int HttpCodec::onUrl(const char* buf, size_t len){
 
 int HttpCodec::onHeaderField(const char* buf, size_t len){}
 int HttpCodec::onHeaderValue(const char* buf, size_t len){}
-int HttpCodec::onHeaderComplete(){}
+int HttpCodec::onHeadersComplete(){}
 int HttpCodec::onBody(const char* buf, size_t len){}
 int HttpCodec::onMessageComplete(){}
 
