@@ -1,6 +1,5 @@
 #include <iostream>
 #include <HttpServerAcceptor.h>
-#include <HttpSession.h>
 
 int HttpServerAcceptor::setNonBlock(int fd){
     int flags;

@@ -18,7 +18,6 @@
 
 #include <Epoll.h>
 #include <HttpCodecFactory.h>
-#include <HttpSession.h>
 
 class HttpServerAcceptor
 {

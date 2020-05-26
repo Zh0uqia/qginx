@@ -4,7 +4,7 @@
 HttpSession::HttpSession(std::unique_ptr<HttpCodec> codec)
     : codec_(std::move(codec))
 {
-
+    codec_ -> setCallback(this);
 }
 
 void HttpSession::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD){
@@ -22,6 +22,7 @@ void HttpSession::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollF
         
     }
 
+    // begin processing http requests
     codec_ -> onIngress(buf, recved);
 }
 

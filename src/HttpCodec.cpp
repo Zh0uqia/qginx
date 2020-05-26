@@ -25,6 +25,10 @@ HttpCodec::~HttpCodec(){
     parser_ = nullptr;
 }
 
+void HttpCodec::setCallback(HttpSession* session){
+    callback_ = session;
+}
+
 const http_parser_settings* HttpCodec::generateSettings(){
     static http_parser_settings settings;
 
@@ -36,16 +40,23 @@ const http_parser_settings* HttpCodec::generateSettings(){
 
 void HttpCodec::onIngress(char* buf, ssize_t recved){
     size_t nparsed;
-    
-    std::cout << "buf is " << buf << std::endl;
+
+    /* callback functions will be called after http_parser_execute() */
     nparsed = http_parser_execute(parser_, generateSettings(), buf, recved);
-    dbPrint(nparsed << std::endl);
+    dbPrint("nparsed= " << nparsed << std::endl);
+
 }
 
-void HttpCodec::onMessageBegin(){}
+int HttpCodec::onMessageBegin(){
+    msg_.reset(new HttpMessage());
+    
+    callback_ -> onMessageBegin(msg_.get());
+    return 0;
+}
 
 int HttpCodec::onUrl(const char* buf, size_t len){
-    std::cout << "url is" << buf << std::endl;
+    url_.append(buf);
+    dbPrint("url is" << buf << std::endl);
     return 0;
 }
 
@@ -57,12 +68,18 @@ int HttpCodec::onMessageComplete(){}
 
 /* All callback functions must return 0 on success, return 1 on failure */
 int HttpCodec::onMessageBeginCB(http_parser* parser){
-    std::cout << "This is message begin call back." << std::endl;
-    return 0;
+    HttpCodec* codec = static_cast<HttpCodec*>(parser->data);
+
+    try{
+        return codec->onMessageBegin();
+    }catch(const std::exception& ex){
+        return 1;
+    }
 }
 
 int HttpCodec::onUrlCB(http_parser* parser, const char* buf, size_t len){
-    // static member function does not have "this" pointer 
+    // static member function does not have "this" pointer
+    // and cannot access non-static member function directly
     HttpCodec* codec = static_cast<HttpCodec*>(parser->data);
     
     try{

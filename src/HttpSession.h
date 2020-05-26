@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+class HttpCodec;
 // manage transactions and transaction handlers
 class HttpSession
 {
