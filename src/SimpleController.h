@@ -1,10 +1,10 @@
 #pragma once
+#include <Handler.h>
 
 class SimpleController
 {
 public:
-    void onHeadersComplete() override;
-
+    Handler getRequestHandler();
 private:
 
 };

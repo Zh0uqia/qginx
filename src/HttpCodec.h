@@ -32,22 +32,31 @@ public:
     /* Callback wrappers for http_parser callbacks*/
     static int onMessageBeginCB(http_parser* parser);
     static int onUrlCB(http_parser* parser, const char * buf, size_t len);
-    static int OnHeaderFieldCB(http_parser *parser, const char * buf, size_t len);
-    static int OnHeaderValueCB(http_parser *parser, const char * buf, size_t len);
-    static int OnHeadersCompleteCB(http_parser *parser);
-    static int OnBodyCB(http_parser *parser, const char * buf, size_t len);
-    static int OnMessageCompleteCB(http_parser *parser);
+    static int onHeaderFieldCB(http_parser *parser, const char * buf, size_t len);
+    static int onHeaderValueCB(http_parser *parser, const char * buf, size_t len);
+    static int onHeadersCompleteCB(http_parser *parser);
+    static int onBodyCB(http_parser *parser, const char * buf, size_t len);
+    static int onMessageCompleteCB(http_parser *parser);
     
 private:
+    enum class HeaderParsingState : uint8_t{
+        kParsingHeaderIdle,
+        kParsingHeaderStart,
+        kParsingHeaderName,
+        kParsingHeaderValue,
+        kParsingHeaderComplete
+    };   
+    
     HttpSession* callback_;
 
-    HttpMessage msg_;
-    std::string url_;
+    std::unique_ptr<HttpMessage> msg_;
 
     TransportDirection direction_;
 
     http_parser* parser_;
 
-
+    HeaderParsingState headerParsingState_;
+    std::string url_;
+    std::string currentHeaderNameString_;
 };
 

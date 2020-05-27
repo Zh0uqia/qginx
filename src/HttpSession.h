@@ -3,6 +3,9 @@
 #include <HttpCodec.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <HttpMessage.h>
+#include <Handler.h>
+#include <SimpleController.h>
 
 class HttpCodec;
 // manage transactions and transaction handlers
@@ -13,7 +16,10 @@ public:
     
     void httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD);
 
+    void onMessageBegin(HttpMessage* msg);
+    void onHeadersComplete(HttpMessage* msg);
 private:
     std::unique_ptr<HttpCodec> codec_;
+    SimpleController controller_;
 };
 

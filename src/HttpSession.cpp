@@ -26,4 +26,12 @@ void HttpSession::httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollF
     codec_ -> onIngress(buf, recved);
 }
 
+void HttpSession::onMessageBegin(HttpMessage* msg){
 
+}
+
+void HttpSession::onHeadersComplete(HttpMessage* msg){
+    Handler handler = controller_.getRequestHandler();
+
+    msg -> setHandler(handler);
+}

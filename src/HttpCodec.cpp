@@ -2,7 +2,8 @@
 #include <HttpCodec.h>
 
 HttpCodec::HttpCodec(TransportDirection direction)
-    : direction_(direction)
+    : direction_(direction),
+    headerParsingState_(HeaderParsingState::kParsingHeaderIdle)
 {
     // remember to free
     parser_ = (http_parser*) malloc(sizeof(http_parser)); 
@@ -34,13 +35,18 @@ const http_parser_settings* HttpCodec::generateSettings(){
 
     settings.on_message_begin = HttpCodec::onMessageBeginCB;
     settings.on_url = HttpCodec::onUrlCB;
+    settings.on_header_field = HttpCodec::onHeaderFieldCB;
+    settings.on_header_value = HttpCodec::onHeaderValueCB;
+    settings.on_headers_complete = HttpCodec::onHeadersCompleteCB;
+    settings.on_body = HttpCodec::onBodyCB;
+    settings.on_message_complete = HttpCodec::onMessageCompleteCB;
 
     return &settings;
 }
 
 void HttpCodec::onIngress(char* buf, ssize_t recved){
     size_t nparsed;
-
+    dbPrint("Received size is: " << recved << std::endl);
     /* callback functions will be called after http_parser_execute() */
     nparsed = http_parser_execute(parser_, generateSettings(), buf, recved);
     dbPrint("nparsed= " << nparsed << std::endl);
@@ -55,14 +61,63 @@ int HttpCodec::onMessageBegin(){
 }
 
 int HttpCodec::onUrl(const char* buf, size_t len){
-    url_.append(buf);
+    url_.append(buf, len);
     dbPrint("url is" << buf << std::endl);
     return 0;
 }
 
-int HttpCodec::onHeaderField(const char* buf, size_t len){}
-int HttpCodec::onHeaderValue(const char* buf, size_t len){}
-int HttpCodec::onHeadersComplete(){}
+/*
+void HttpCodec::pushHeaderNameAndValue(HttpHeaders& hdrs){
+    hdrs.add(currentHeaderName_, currentHeaderValue_);
+    currentHeaderName_.clear();
+    currentHeaderValue_.clear();
+    // currentHeaderNameString_.clear();
+}
+*/
+
+int HttpCodec::onHeaderField(const char* buf, size_t len){
+    dbPrint("Current header field: " << buf << std::endl);
+
+    /*
+    if (headerParsingState_ == kParsingHeaderValue){
+        pushHeaderNameAndValue(msg_.getHeaders());
+    }else if (headerParsingState_ == kParsingHeaderName){
+        currentHeaderName_.append(buf, len)
+    }else{
+        headerParsingState_ = kParsingHeaderName;
+        currentHeaderName_.append()
+    }
+    // currentHeaderNameString_.append(buf);
+    */
+
+    return 0;
+}
+
+int HttpCodec::onHeaderValue(const char* buf, size_t len){
+    dbPrint("Current header value: " << buf << std::endl);
+    
+    // currentHeaderValue_.append(buf, len);
+    return 0;
+}
+
+int HttpCodec::onHeadersComplete(){
+    msg_->setHttpVersion(parser_->http_major, parser_->http_minor);
+
+    if (direction_ == TransportDirection::DOWNSTREAM){
+        msg_->setHttpMethod(static_cast<http_method>(parser_->method));
+    }
+    
+    msg_->setUrl(url_);
+    url_.clear();
+
+    headerParsingState_ = HeaderParsingState::kParsingHeaderComplete;
+
+    callback_->onHeadersComplete(msg_.get());
+
+    // temporarily return 1 to let http parser ignore message body 
+    return 1;
+}
+
 int HttpCodec::onBody(const char* buf, size_t len){}
 int HttpCodec::onMessageComplete(){}
 
@@ -85,13 +140,46 @@ int HttpCodec::onUrlCB(http_parser* parser, const char* buf, size_t len){
     try{
         return codec->onUrl(buf, len);
     }catch(const std::exception& ex){
+        dbPrint("url wrong" << std::endl);
         return 1;
     }
 }
 
-int HttpCodec::OnHeaderFieldCB(http_parser *parser, const char * buf, size_t len){}
-int HttpCodec::OnHeaderValueCB(http_parser *parser, const char * buf, size_t len){}
-int HttpCodec::OnHeadersCompleteCB(http_parser *parser){}
-int HttpCodec::OnBodyCB(http_parser *parser, const char * buf, size_t len){}
-int HttpCodec::OnMessageCompleteCB(http_parser *parser){}
+int HttpCodec::onHeaderFieldCB(http_parser *parser, const char * buf, size_t len){
+    HttpCodec* codec = static_cast<HttpCodec*>(parser->data);
+
+    try{
+        return codec->onHeaderField(buf, len);
+    }catch(const std::exception& ex){
+        dbPrint("header field wrong" << std::endl);
+        return 1;
+    }
+}
+
+int HttpCodec::onHeaderValueCB(http_parser *parser, const char * buf, size_t len){
+    HttpCodec* codec = static_cast<HttpCodec*>(parser->data);
+
+    try{
+        return codec->onHeaderValue(buf, len);
+    }catch(const std::exception& ex){
+        dbPrint("header value wrong" << std::endl);
+        return 1;
+    }
+
+}
+
+int HttpCodec::onHeadersCompleteCB(http_parser *parser){
+    HttpCodec* codec = static_cast<HttpCodec*>(parser->data);
+
+    try{
+        return codec->onHeadersComplete();
+    }catch(const std::exception& ex){
+        dbPrint("header complete wrong" << std::endl);
+        return 1;
+    }
+
+}
+
+int HttpCodec::onBodyCB(http_parser *parser, const char * buf, size_t len){}
+int HttpCodec::onMessageCompleteCB(http_parser *parser){}
      
