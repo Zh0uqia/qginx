@@ -22,13 +22,15 @@
 class HttpServerAcceptor
 {
 public:
+
     int setNonBlock(int fd);
     void acceptEventHandler(cycle_t *cycle, event_t* ev, int epollFD);
     connection_t* getConnection(cycle_t* cycle, int sFD);
     void onNewConnection(connection_t *c, int epollFD);
-    
+
 private:
     HttpCodecFactory codecFactory_;
     Epoll epl;
+
 };
 

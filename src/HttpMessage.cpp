@@ -15,14 +15,29 @@ void HttpMessage::setHttpMethod(enum http_method m){
     dbPrint("method is " << method_ << std::endl);
 }
 
+void HttpMessage::setStatusCode(uint8_t code){
+    code_ = code;
+}
+
+void HttpMessage::setStatusMessage(const std::string& message){
+    statusMessage_ = message;
+}
+ 
 void HttpMessage::setUrl(std::string url){
     url_ = url;
 
     dbPrint("url is " << url_ << std::endl);
 }
 
-void HttpMessage::setHandler(Handler handler){
+void HttpMessage::setHandler(Handler* handler){
+    handler_ = handler;
+}
 
+std::string HttpMessage::generateResponse(){
+    std::string res;
+
+    res += "HTTP/" + versionStr_ + " " + std::to_string(code_) +
+        " " + statusMessage_ + "\r\n";
 }
 
 std::string HttpMessage::getHttpVersion(){
@@ -35,4 +50,10 @@ std::string HttpMessage::getHttpMethod(){
 
 std::string HttpMessage::getUrl(){
     return url_;
+}
+
+// finish this part later 
+std::string HttpMessage::getFilePath(){
+    std::string fpath("/mnt/raid/simple-web-server/src/index.html");
+    return fpath;
 }

@@ -41,10 +41,16 @@ public:
     std::string getHttpVersion();
     std::string getHttpMethod();
     std::string getUrl();
-
+    std::string getFilePath();
+ 
 private:
+    Handler* handler_;
+
     std::string versionStr_;
     std::string url_;
     std::string method_;
+
+    uint8_t code_;
+    const std::string& statusMessage_;
 };
 

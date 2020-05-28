@@ -31,7 +31,7 @@ void HttpSession::onMessageBegin(HttpMessage* msg){
 }
 
 void HttpSession::onHeadersComplete(HttpMessage* msg){
-    Handler handler = controller_.getRequestHandler();
+    Handler* handler = controller_.getRequestHandler(msg);
 
     msg -> setHandler(handler);
 }
