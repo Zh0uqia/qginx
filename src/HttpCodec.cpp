@@ -46,10 +46,10 @@ const http_parser_settings* HttpCodec::generateSettings(){
 
 void HttpCodec::onIngress(char* buf, ssize_t recved){
     size_t nparsed;
-    dbPrint("Received size is: " << recved << std::endl);
+    dbPrint("Received message length is: " << recved << std::endl);
+    dbPrint("Received message is: " << buf << std::endl);
     /* callback functions will be called after http_parser_execute() */
     nparsed = http_parser_execute(parser_, generateSettings(), buf, recved);
-    dbPrint("nparsed= " << nparsed << std::endl);
 
 }
 
@@ -62,7 +62,6 @@ int HttpCodec::onMessageBegin(){
 
 int HttpCodec::onUrl(const char* buf, size_t len){
     url_.append(buf, len);
-    dbPrint("url is" << buf << std::endl);
     return 0;
 }
 
@@ -118,8 +117,8 @@ int HttpCodec::onHeadersComplete(){
     return 1;
 }
 
-int HttpCodec::onBody(const char* buf, size_t len){}
-int HttpCodec::onMessageComplete(){}
+int HttpCodec::onBody(const char* buf, size_t len){return 1;}
+int HttpCodec::onMessageComplete(){return 1;}
 
 /* All callback functions must return 0 on success, return 1 on failure */
 int HttpCodec::onMessageBeginCB(http_parser* parser){
@@ -180,6 +179,6 @@ int HttpCodec::onHeadersCompleteCB(http_parser *parser){
 
 }
 
-int HttpCodec::onBodyCB(http_parser *parser, const char * buf, size_t len){}
-int HttpCodec::onMessageCompleteCB(http_parser *parser){}
+int HttpCodec::onBodyCB(http_parser *parser, const char * buf, size_t len){return 1;}
+int HttpCodec::onMessageCompleteCB(http_parser *parser){return 1;}
      

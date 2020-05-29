@@ -1,13 +1,18 @@
 #include <iostream>
 #include <Handler.h>
 
-void Handler::onRequest(std::unique_ptr<HttpMessage> headers){
-    file_ = headers->getFilePath();
-
-    readFile();
+void Handler::detach(){
+    delete this;
 }
 
-void Handler::readFile(){
+void Handler::onRequest(connection_t* c, HttpMessage* headers){
+    file_ = headers->getFilePath();
+
+    readFile(c);
+
+}
+
+void Handler::readFile(connection_t* c){
     std::string buf;
 
     struct stat sbuf;
@@ -20,8 +25,8 @@ void Handler::readFile(){
 
     if (src_fd < 0) {
         ResponseBuilder().status(404, "Not Found")
-           .body()
-           .send();
+           .body("Could not find")
+           .send(c->fd);
         return;
     }
 
@@ -30,8 +35,10 @@ void Handler::readFile(){
 
     if (mmapRet == (void *)-1) {
         munmap(mmapRet, sbuf.st_size);
-        std::perror("404: failure of opening file");
-        return;                                  
+        ResponseBuilder().status(404, "Not Found")
+           .body("Could not find")
+           .send(c->fd);
+        return;
     }
 
     char *src_addr = static_cast<char *>(mmapRet);
@@ -44,7 +51,7 @@ void Handler::readFile(){
     // if consider IO blocking, we should put write event into epoll here 
     ResponseBuilder().status(200, "OK")
         .body(buf)
-        .send();
+        .send(c->fd);
 
 }
 

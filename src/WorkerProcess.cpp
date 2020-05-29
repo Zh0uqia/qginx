@@ -230,12 +230,13 @@ void WorkerProcess::getEventQueue(cycle_t *cycle, int timer, uintptr_t flags){
         std::perror("Epoll wait error");
 
     for (int i=0; i<n; i++){
+        dbPrint("n= " << n << std::endl);
         ee = eventList[i];
     
         c = (connection_t*) ee.data.ptr;
         rev = c->read;
         revent = ee.events;
-
+        dbPrint("c->fd = " << c->fd << std::endl);
         if ((revent & EPOLLIN) && rev->active) {
             if (flags & POST_EVENT){
                 if (rev->accept == 1)

@@ -18,7 +18,11 @@ public:
 
     void onMessageBegin(HttpMessage* msg);
     void onHeadersComplete(HttpMessage* msg);
+    
+    connection_t* getConn();
+
 private:
+    connection_t* conn_;
     std::unique_ptr<HttpCodec> codec_;
     SimpleController controller_;
 };
