@@ -12,7 +12,7 @@ class HttpCodec;
 class HttpSession
 {
 public:
-    HttpSession(std::unique_ptr<HttpCodec> codec);
+    HttpSession(std::unique_ptr<HttpCodec> codec, connection_t* c);
     
     void httpWaitRequestHandler(cycle_t *cycle, event_t *ev, int epollFD);
 

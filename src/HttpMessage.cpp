@@ -45,7 +45,7 @@ void HttpMessage::setHttpMethod(enum http_method m){
     dbPrint("method is " << method_ << std::endl);
 }
 
-void HttpMessage::setStatusCode(uint8_t code){
+void HttpMessage::setStatusCode(uint16_t code){
     code_ = code;
 }
 
@@ -68,6 +68,7 @@ void HttpMessage::setHandler(Handler* handler){
 std::string HttpMessage::generateResponse(){
     std::string res;
 
+    dbPrint("Code is: " << code_ << std::endl);
     res += "HTTP/" + versionStr_ + " " + std::to_string(code_) +
         " " + statusMessage_ + "\r\n";
     return res;
@@ -87,6 +88,6 @@ std::string HttpMessage::getUrl(){
 
 // finish this part later 
 std::string HttpMessage::getFilePath(){
-    std::string fpath = "/mnt/raid/simple-web-server/src" + url_;
+    std::string fpath = "/mnt/raid/qginx/src" + url_;
     return fpath;
 }

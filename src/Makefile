@@ -3,11 +3,10 @@ CXXFLAGS = -Wall -g
 INCLUDES = -I.
 CLIBS = -lpthread
 
-CGI = external/fastcgi/*.c
-PARSER = external/http-parser/*.c
-ARCHIVED = archived/*.cpp
-SRCS = $(wildcard *.cpp $(CGI) $(PARSER) $(ARCHIVED))
-OBJS = $(SRCS:.c=.o)
+CGI = external/fastcgi
+PARSER = external/http-parser
+ARCHIVED = archived
+SRCS = $(wildcard *.cpp $(CGI)/*.c $(PARSER)/*.c $(ARCHIVED)/*.cpp)
 
 DEBUG ?= 1
 
@@ -19,14 +18,11 @@ MAIN = webserver
 
 .PHONY: depend clean 
 
-$(MAIN): $(OBJS)
+$(MAIN): $(SRCS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $^ $(CLIBS)
 
-.c.o:
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
-
 clean:
-	rm $(MAIN)
+	rm $(MAIN) $(CGI)/*.o $(PARSER)/*.o $(ARCHIVED)/*.o
 
 depend: $(SRCS)
 	makedepend $(INCLUDES) $^

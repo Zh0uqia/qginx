@@ -83,7 +83,7 @@ void HttpServerAcceptor::acceptEventHandler(cycle_t* cycle, event_t* ev, int epo
 void HttpServerAcceptor::onNewConnection(connection_t *c, int epollFD){
     // a TCP connection is binded with a session, a codec, and a http parser 
     std::unique_ptr<HttpCodec> codec = codecFactory_.getCodec(TransportDirection::DOWNSTREAM);
-    HttpSession* session = new HttpSession(std::move(codec)); // remember to free
+    HttpSession* session = new HttpSession(std::move(codec), c); // remember to free
  
     event_t *rev;
     rev = c->read;
@@ -97,9 +97,14 @@ void HttpServerAcceptor::onNewConnection(connection_t *c, int epollFD){
     // c->write->handler = httpEmptyHandler;
      
     // add to epoll to check whether there are data to be read 
+    /*
     if (epl.epollAddEvent(epollFD, c->read, READ_EVENT, 0) == 0)
         std::perror("Adding read event");
+    */
 
+    // edge triggered
+    if (epl.epollAddConn(epollFD, c->read) == 0)
+        std::perror("Adding read event");
 }
 
 

@@ -113,12 +113,11 @@ int HttpCodec::onHeadersComplete(){
 
     callback_->onHeadersComplete(msg_.get());
 
-    // temporarily return 1 to let http parser ignore message body 
-    return 1;
+    return 0;
 }
 
-int HttpCodec::onBody(const char* buf, size_t len){return 1;}
-int HttpCodec::onMessageComplete(){return 1;}
+int HttpCodec::onBody(const char* buf, size_t len){return 0;}
+int HttpCodec::onMessageComplete(){return 0;}
 
 /* All callback functions must return 0 on success, return 1 on failure */
 int HttpCodec::onMessageBeginCB(http_parser* parser){
@@ -179,6 +178,6 @@ int HttpCodec::onHeadersCompleteCB(http_parser *parser){
 
 }
 
-int HttpCodec::onBodyCB(http_parser *parser, const char * buf, size_t len){return 1;}
-int HttpCodec::onMessageCompleteCB(http_parser *parser){return 1;}
+int HttpCodec::onBodyCB(http_parser *parser, const char * buf, size_t len){return 0;}
+int HttpCodec::onMessageCompleteCB(http_parser *parser){return 0;}
      

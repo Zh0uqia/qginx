@@ -21,24 +21,21 @@ public:
     }
 
     void send(int fd){
-        if (header_){
-            std::string response = header_->generateResponse();
-            response += "Content-Length: " + std::to_string(body_.size()) +
-                "\r\n\r\n";
-            const char* writeBuf = response.c_str();
+        std::string response = header_->generateResponse();
+        response += "Content-Type: text/html\r\n";
+        response += "Content-Length: " + std::to_string(body_.size()) +
+            "\r\n";
+        response += "Server: Qginx\r\n";
+        response += "\r\n";
+        response += body_;
+        const char* writeBuf = response.c_str();
 
-            if (write(fd, writeBuf, response.size()) < 0){
-                std::perror("Write to socket");
-            }
+        if (write(fd, writeBuf, response.size()) < 0){
+            std::perror("Write to socket");
         }
-
-        if (!body_.empty()){
-            if (write(fd, body_.c_str(), body_.size()) < 0){
-                std::perror("Write to socket");
-            }
-        }
-        
+    
     }
+
 private:
     int socketFd_;
     std::unique_ptr<HttpMessage> header_;

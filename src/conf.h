@@ -16,7 +16,7 @@
 
 #define BUFFERLENGTH 1024
 
-#define WORKER_NUMBER 1
+#define WORKER_NUMBER 2
 
 #define MAX_EPOLLFD 1024
 

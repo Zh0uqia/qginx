@@ -11,7 +11,7 @@ public:
     void setHttpVersion(uint8_t mag, uint8_t min);
     void setHttpMethod(enum http_method m);
     void setUrl(std::string url);
-    void setStatusCode(uint8_t code);
+    void setStatusCode(uint16_t code);
     void setStatusMessage(const std::string& message);
     // void setHandler(Handler* handler);
 
@@ -29,7 +29,7 @@ private:
     std::string url_;
     std::string method_;
 
-    uint8_t code_;
+    uint16_t code_;
     std::string statusMessage_;
 };
 
