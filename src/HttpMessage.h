@@ -1,6 +1,7 @@
 #pragma once
 #include <conf.h>
 #include <external/http-parser/http_parser.h>
+#include <utils/ParseURL.h>
 
 // class Handler;
 class HttpMessage

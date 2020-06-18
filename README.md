@@ -3,6 +3,9 @@
 ## Introduction
 This is a high performance web server. The purpose of this project is to learn from [Nginx](https://github.com/nginx/nginx) and implement a simpler version similar with it.
 
+## OS
+- Ubuntu 18.04
+
 ## Development Roadmap
 - Version 0: A single-processing and modularized web server. It can process static and dynamic requests. 
 - Version 1: A multi-processing web server. It uses Epoll as I/O event notification mechanism, and processes events asynchronously.
@@ -37,3 +40,8 @@ Req/Sec    12.34k   577.08    13.57k    67.82%
 Requests/sec:  49099.03
 Transfer/sec:     17.98MB
 ```
+
+## Tech blogs
+Here are tech blogs related to this project:
+[Nginx source code review](https://qycode.me/blog/2020/05/Nginx-notes/)
+[Proxygen source code review](https://qycode.me/blog/2020/06/Proxygen-note/)

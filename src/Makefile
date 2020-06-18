@@ -6,7 +6,8 @@ CLIBS = -lpthread
 CGI = external/fastcgi
 PARSER = external/http-parser
 ARCHIVED = archived
-SRCS = $(wildcard *.cpp $(CGI)/*.c $(PARSER)/*.c $(ARCHIVED)/*.cpp)
+UTILS = utils
+SRCS = $(wildcard *.cpp $(CGI)/*.c $(PARSER)/*.c $(ARCHIVED)/*.cpp $(UTILS)/*.cpp)
 
 DEBUG ?= 1
 
@@ -22,7 +23,7 @@ $(MAIN): $(SRCS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $^ $(CLIBS)
 
 clean:
-	rm $(MAIN) $(CGI)/*.o $(PARSER)/*.o $(ARCHIVED)/*.o
+	rm $(MAIN) $(CGI)/*.o $(PARSER)/*.o $(ARCHIVED)/*.o $(UTILS)/*.o
 
 depend: $(SRCS)
 	makedepend $(INCLUDES) $^

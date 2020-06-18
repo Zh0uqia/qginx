@@ -85,9 +85,15 @@ std::string HttpMessage::getHttpMethod(){
 std::string HttpMessage::getUrl(){
     return url_;
 }
-
-// finish this part later 
+ 
 std::string HttpMessage::getFilePath(){
-    std::string fpath = "/mnt/raid/qginx/src" + url_;
+    ParseURL u(url_);
+    std::string path = u.path();
+    if (path == "/")
+        path.append("index.html");
+    std::string fpath = '.' + path; // get relative path
+
     return fpath;
 }
+
+ 
