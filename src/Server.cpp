@@ -94,7 +94,7 @@ void Server::serverInit(){
     return;
 }
 
-
+/*
 void Server::handNewConn(){
     while (true){
         signal(SIGPIPE, handleSigpipe);
@@ -148,3 +148,4 @@ void Server::handNewConn(){
         close(newSocket_);         
     }
 }
+*/ 

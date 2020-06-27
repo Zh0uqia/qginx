@@ -43,5 +43,5 @@ Transfer/sec:     17.98MB
 
 ## Tech blogs
 Here are tech blogs related to this project:
-[Nginx source code review](https://qycode.me/blog/2020/05/Nginx-notes/)
-[Proxygen source code review](https://qycode.me/blog/2020/06/Proxygen-note/)
+- [Nginx source code review](https://qycode.me/blog/2020/05/Nginx-notes/)
+- [Proxygen source code review](https://qycode.me/blog/2020/06/Proxygen-note/)

@@ -1,14 +1,14 @@
 CXX = g++
+CC = gcc
 CXXFLAGS = -Wall -g
+CFLAGS = -Wall -g
 INCLUDES = -I.
 CLIBS = -lpthread
 
-CGI = external/fastcgi
+# CGI = external/fastcgi
 PARSER = external/http-parser
-ARCHIVED = archived
 UTILS = utils
-SRCS = $(wildcard *.cpp $(CGI)/*.c $(PARSER)/*.c $(ARCHIVED)/*.cpp $(UTILS)/*.cpp)
-
+SRCS = $(wildcard *.cpp $(PARSER)/*.c $(UTILS)/*.cpp)
 DEBUG ?= 1
 
 ifeq ($(DEBUG), 1)
@@ -17,14 +17,24 @@ endif
 
 MAIN = webserver
 
-.PHONY: depend clean 
+.PHONY: depend clean
 
-$(MAIN): $(SRCS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $^ $(CLIBS)
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $^
+
+
+$(MAIN): %.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(CLIBS)
+
+%.d: %.cpp
+	@set -e; rm -f $@; \
+	$(CXX) -M $(CXXFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ : ]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+
+%.d: ;
+#include $(wildcard $(SRCS:.cpp=.d))
 
 clean:
-	rm $(MAIN) $(CGI)/*.o $(PARSER)/*.o $(ARCHIVED)/*.o $(UTILS)/*.o
-
-depend: $(SRCS)
-	makedepend $(INCLUDES) $^
+	rm $(MAIN) $(PARSER)/*.o $(UTILS)/*.o
 

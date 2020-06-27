@@ -1,5 +1,0 @@
-#define WORKER_NUMBER 1
-
-#define IP_ADDRESS "127.0.0.1"
-
-#define HTTP1_PORT 8080
